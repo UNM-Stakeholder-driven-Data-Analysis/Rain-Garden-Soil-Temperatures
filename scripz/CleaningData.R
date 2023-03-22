@@ -9,16 +9,12 @@ library(tidyverse)
 library(lubridate)
 library(dplyr)
 
-#### set working directory ####
-
-setwd("~/Documents/Data Analysis/R/Southwest Urban Hydrology/inside data")
-
 #### retrieve data ####
 
-C1 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/inside data/C1_SoilTempData.csv", header = TRUE)
-C2 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/inside data/C2_SoilTempData.csv", header = TRUE)
-T1 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/inside data/T1_SoilTempData.csv", header = TRUE)
-T2 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/inside data/T2_SoilTempData.csv", header = TRUE)
+C1 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/C1_SoilTempData.csv", header = TRUE)
+C2 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/C2_SoilTempData.csv", header = TRUE)
+T1 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/T1_SoilTempData.csv", header = TRUE)
+T2 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/T2_SoilTempData.csv", header = TRUE)
 
 #### examine date/time ####
 
@@ -57,13 +53,13 @@ View(T2)
 OlsonNames()
 
 #create new date/time format
-C1$date_time=as.POSIXct(C1$Measurement.Time, format="%m/%d/%Y %H:%M %p", tz="MST")
+C1$date_time=as.POSIXct(C1$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
 
-C2$date_time=as.POSIXct(C2$Measurement.Time, format="%m/%d/%Y %H:%M %p", tz="MST")
+C2$date_time=as.POSIXct(C2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
 
-T1$date_time=as.POSIXct(T1$Measurement.Time, format="%m/%d/%Y %H:%M %p", tz="MST")
+T1$date_time=as.POSIXct(T1$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
 
-T2$date_time=as.POSIXct(T2$Measurement.Time, format="%m/%d/%Y %H:%M %p", tz="MST")
+T2$date_time=as.POSIXct(T2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
 
 #### describe data set size and structure ####
 
@@ -98,27 +94,33 @@ ggplot(data = C2, aes(x=month, y=X6.inches))+
   theme(legend.title = C2)+
   theme_classic()
 
-
-#### identify damaged data ####
+#### calculating correct number of hours ####
 
 #get first and last days
 summary(C1)
 
-#calculating total days
-startDate <-as.Date("2014-09-01")
-endDate <-as.Date("2021-12-01")
+#calculating total number of days
+startDate <-as.Date("2014-09-01 00:00:00", tz = "MST")
+endDate <-as.Date("2021-12-01 12:00:00", tz = "MST")
 Noofdays <-endDate - startDate
-Noofdays
+# Noofdays is 2648
 
 #calculating total hours
-as.duration(Noofdays)
+difftime(startDate, endDate, units = "hours")
+# Number of hours is 63552, so we know this is the number of observations we can expect
 
-seq(as.Date("2014-09-01"), as.Date("2021-12-01"))
+#### identify missing/duplicate observations ####
 
-#create data frame with all possible dates and times
+#create sequence with correct dates and times
+seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63552)
 
+#create data frame from sequence
+hour.df <- data.frame(seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63552))
 
+#merge data frames
+C1_correct <- merge(data.frame(C1, row.names = NULL), data.frame(hour.df, row.names=NULL),
+      by = 0, all = TRUE)[-1]
 
 #identifying duplicates
-anyDuplicated(C1$date_time)
+anyDuplicated(C1_correct$date_time)
 
