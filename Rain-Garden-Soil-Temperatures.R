@@ -95,5 +95,20 @@ T2 %>% dplyr::group_by(month) %>% summarise(mean(X6.inches))
 DFlng$month <- factor(DFlng$month)
 ggplot(C1, aes(x = month, y = mean(X6.inches), group = NULL, color = NULL)) + geom_line()
 
-                      
+#### calculating correct number of hours ####
+
+#get first and last days
+summary(C1)
+
+#calculating total number of days
+startDate <-as.Date("2014-09-01 00:00:00", tz = "MST")
+endDate <-as.Date("2021-12-01 12:00:00", tz = "MST")
+Noofdays <-endDate - startDate
+# Noofdays is 2648
+
+#calculating total hours
+difftime(startDate, endDate, units = "hours")
+# Number of hours is 63552, so we know this is the number of observations we can expect
+
+
 
