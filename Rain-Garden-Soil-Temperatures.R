@@ -110,5 +110,28 @@ Noofdays <-endDate - startDate
 difftime(startDate, endDate, units = "hours")
 # Number of hours is 63552, so we know this is the number of observations we can expect
 
+#### create data frame with correct hours and merge with existing data frames ####
+
+#create sequence with correct dates and times
+seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63552)
+
+#create data frame from sequence
+hour.df <- data.frame(hours=seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63552))
+
+#merge data frame from sequence with all data frames
+C1 <- merge(data.frame(C1, row.names = NULL), data.frame(hour.df, row.names=NULL),
+                    by = 0, all = TRUE)[-1]
+C2 <- merge(data.frame(C2, row.names = NULL), data.frame(hour.df, row.names=NULL),
+            by = 0, all = TRUE)[-1]
+T1 <- merge(data.frame(T1, row.names = NULL), data.frame(hour.df, row.names=NULL),
+            by = 0, all = TRUE)[-1]
+T2 <- merge(data.frame(T2, row.names = NULL), data.frame(hour.df, row.names=NULL),
+            by = 0, all = TRUE)[-1]
+
+#order/sort chronologically
+C1_correct <- C1[order(C1$hours),]
+C2_correct <- C2[order(C2$hours),]
+T1_correct <- T1[order(T1$hours),]
+T2_correct <- T2[order(T2$hours),]
 
 
