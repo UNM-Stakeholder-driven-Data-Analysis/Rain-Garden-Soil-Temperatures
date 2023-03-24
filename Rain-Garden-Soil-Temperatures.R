@@ -141,14 +141,7 @@ T2_correct <- T2[order(T2$hours),]
 # temperature data. NOAA station is approximately 3.37 miles away from study 
 # site.
 
-AirTemp = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/NOAA_SF#2_AirTempData.csv", header = TRUE)
+#retrieve csv with hourly temperature data
+AirTemp = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/NOAA_AirportGauge_AirTemp.csv", header = TRUE)
 
 
-
-#### reformat date/time ####
-
-# view formats
-?strptime
-
-# reformat date/time
-AirTemp$date=as.POSIXct(AirTemp$DATE, format="%F", tz="MST")
