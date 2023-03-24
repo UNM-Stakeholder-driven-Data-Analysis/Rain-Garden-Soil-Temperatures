@@ -15,7 +15,6 @@ C2 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden
 T1 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/T1_SoilTempData.csv", header = TRUE)
 T2 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/T2_SoilTempData.csv", header = TRUE)
 
-
 #### examine date/time ####
 
 #examine date/time for C1
@@ -135,3 +134,21 @@ T1_correct <- T1[order(T1$hours),]
 T2_correct <- T2[order(T2$hours),]
 
 
+
+#### import temperature data ####
+# Importing temperature data for study period from NOAA station Santa Fe 2 to
+# have an ambient air temperature that can be used for comparison to soil
+# temperature data. NOAA station is approximately 3.37 miles away from study 
+# site.
+
+AirTemp = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/NOAA_SF#2_AirTempData.csv", header = TRUE)
+
+
+
+#### reformat date/time ####
+
+# view formats
+?strptime
+
+# reformat date/time
+AirTemp$date=as.POSIXct(AirTemp$DATE, format="%F", tz="MST")
