@@ -104,6 +104,7 @@ startDate <-as.Date("2014-09-01 00:00:00", tz = "MST")
 endDate <-as.Date("2021-12-01 12:00:00", tz = "MST")
 Noofdays <-endDate - startDate
 # Noofdays is 2648
+#total days is 2648
 
 #calculating total hours
 difftime(startDate, endDate, units = "hours")
@@ -136,6 +137,7 @@ T2_correct <- T2[order(T2$hours),]
 
 
 #### import temperature data ####
+
 # Importing temperature data for study period from NOAA station Santa Fe 2 to
 # have an ambient air temperature that can be used for comparison to soil
 # temperature data. NOAA station is approximately 3.37 miles away from study 
@@ -144,4 +146,54 @@ T2_correct <- T2[order(T2$hours),]
 #retrieve csv with hourly temperature data
 AirTemp = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/NOAA_AirportGauge_AirTemp.csv", header = TRUE)
 
+#### calculate mean of identical dates in data sets ####
+#identify duplicates in data frames
+duplicated(C1_correct)
 
+C1_correct[duplicated(C1_correct)]
+
+length(unique(C1_correct$date_time)) == nrow(C1_correct)
+
+#example code
+#data <- data.frame("id" = c(1,1, 3,3,5,5),
+#                     "city" = c("new_york", "new_york", "london", "london", "barcelona", "barcelona"),
+#                     "temperature" = c(15, 16, 13, 12, 30, 32),
+#                     "pressure" =  c(1000, 1003, 980, 998, 1013, 1015),
+#                     "time" = c("2015-01-01 06:30:00","2015-01-01 18:30:00",
+#                                "2015-02-10 07:00:00", "2015-02-10 20:30:00",
+#                                "2015-04-08 08:00:00", "2015-04-08 12:00:00"),stringsAsFactors = FALSE)
+
+#data %>% group_by(id, city, time = as.Date(time)) %>% summarise(across(c(temperature, pressure), mean))
+
+C1_correct %>% group_by(date_time)  %>% 
+  summarise(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
+
+#turn tibble with correct rows into data frame
+Control_1 <- as.data.frame(C1_correct %>% group_by(date_time) %>% 
+                             summarise(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean)))
+                           
+
+#### identify missing rows/hours in data sets ####
+#copy to new dataframe
+NewC1 <- C1_correct
+
+#match indices
+inds1 <- match(C1_correct$hours, C1_correct$date_time)
+inds2 <- match(C1_correct$date_time, C1_correct$hours)
+
+#replace values 
+NewC1$date_time <- C1_correct$date_time[inds1]
+
+#order by hours column
+NewC1 <- NewC1[order(NewC1$date_time), ]
+
+#replace NA in hours with unmatched value
+NewC1$date_time[is.na(NewC1$date_time)] <- C1_correct$date_time[is.na(inds2)]
+
+#other code
+NewC1 <- match(C1_correct$date_time, C1_correct$hours)
+NewControlOne <- is.na(NewC1)
+NewControlOne <- as.data.frame(NewControlOne)
+data.frame(newdatetime=c(NewC1$date_time[!NewControlOne], NewC1$date_time[NewControlOne]),
+           newhours=c(NewC1$hours[NewControlOne[!NewControlOne]], NewC1$hours
+                      [!seq_along(NewC1$hours) %in% NewControlOne]))
