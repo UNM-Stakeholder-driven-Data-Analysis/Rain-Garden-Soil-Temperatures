@@ -179,32 +179,48 @@ length(unique(C1_correct$date_time)) == nrow(C1_correct)
 #                                "2015-02-10 07:00:00", "2015-02-10 20:30:00",
 #                                "2015-04-08 08:00:00", "2015-04-08 12:00:00"),stringsAsFactors = FALSE)
 
-#data %>% group_by(id, city, time = as.Date(time)) %>% summarise(across(c(temperature, pressure), mean))
+#data %>% group_by(id, city, time = as.Date(time)) %>% summarize(across(c(temperature, pressure), mean))
 
-C1_correct %>% group_by(date_time)  %>% 
-  summarise(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
+#calculate averages for temperature values of duplicate readings
+Control_1 <- C1_correct %>% group_by(date_time)  %>% 
+  summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
 
-#turn tibble with correct rows into data frame
-Control_1 <- as.data.frame(C1_correct %>% group_by(date_time) %>% 
-                             summarise(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean)))
-                           
+Control_2 <- C2_correct %>% group_by(date_time)  %>% 
+  summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
+
+Test_1 <- T1_correct %>% group_by(date_time)  %>% 
+  summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
+##not working due to NA's, see next section
+
+Test_2 <- T2_correct %>% group_by(date_time)  %>% 
+  summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
+
+
+#now check
+subset(Control_1, duplicated(date_time))
+
+subset(Control_2, duplicated(date_time))
+
+subset(Test_1, duplicated(date_time))
+
+subset(Test_2, duplicated(date_time))
 
 #### identify missing rows/hours in data sets ####
-#copy to new dataframe
-NewC1 <- C1_correct
+#copy to  ew dataframe
+NewT1 <- T1_correct
 
 #match indices
-inds1 <- match(C1_correct$hours, C1_correct$date_time)
-inds2 <- match(C1_correct$date_time, C1_correct$hours)
+inds1 <- match(T1_correct$hours, T1_correct$date_time)
+inds2 <- match(T1_correct$date_time, T1_correct$hours)
 
 #replace values 
-NewC1$date_time <- C1_correct$date_time[inds1]
+NewT1$date_time <- T1_correct$date_time[inds1]
 
 #order by hours column
-NewC1 <- NewC1[order(NewC1$date_time), ]
+NewT1 <- NewT1[order(NewT1$date_time), ]
 
 #replace NA in hours with unmatched value
-NewC1$date_time[is.na(NewC1$date_time)] <- C1_correct$date_time[is.na(inds2)]
+NewT1$date_time[is.na(NewT1$date_time)] <- T1_correct$date_time[is.na(inds2)]
 
 #other code
 NewC1 <- match(C1_correct$date_time, C1_correct$hours)
