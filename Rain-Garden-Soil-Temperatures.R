@@ -151,9 +151,23 @@ AirTemp = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-G
 #### calculate mean of identical dates in data sets ####
 #identify duplicates in data frames
 duplicated(C1_correct)
+subset(C1_correct, duplicated(date_time))
 
-C1_correct[duplicated(C1_correct)]
+duplicated(C2_correct)
+subset(C2_correct, duplicated(date_time))
 
+duplicated(T1_correct)
+subset(T1_correct, duplicated(date_time))
+
+duplicated(T2_correct)
+subset(T2_correct, duplicated(date_time))
+
+#calculate averages for temperature values of duplicate readings
+C1_correct %>% group_by(date_time)  %>% 
+  summarize(across(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean)
+##didn't work
+
+#idk what this code is for...
 length(unique(C1_correct$date_time)) == nrow(C1_correct)
 
 #example code
