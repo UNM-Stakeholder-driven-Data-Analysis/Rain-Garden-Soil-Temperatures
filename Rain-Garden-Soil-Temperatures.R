@@ -99,24 +99,26 @@ ggplot(C1, aes(x = month, y = mean(X6.inches), group = NULL, color = NULL)) + ge
 #get first and last days
 summary(C1)
 
-#calculating total number of days
+#calculating total number of days in study period
 startDate <-as.Date("2014-09-01 00:00:00", tz = "MST")
 endDate <-as.Date("2021-12-01 12:00:00", tz = "MST")
-Noofdays <-endDate - startDate
-# Noofdays is 2648
+Noofdays <- endDate - startDate
+view(Noofdays)
 #total days is 2648
 
 #calculating total hours
 difftime(startDate, endDate, units = "hours")
 # Number of hours is 63552, so we know this is the number of observations we can expect
+##The above is incorrect as evidenced when creating data frame from sequence of
+##datetime in next section
 
-#### create data frame with correct hours and merge with existing data frames ####
+#### create sequence with correct number of rows ####
 
 #create sequence with correct dates and times
-seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63552)
+seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63565)
 
 #create data frame from sequence
-hour.df <- data.frame(hours=seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63552))
+hour.df <- data.frame(hours=seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63565))
 
 #merge data frame from sequence with all data frames
 C1 <- merge(data.frame(C1, row.names = NULL), data.frame(hour.df, row.names=NULL),
