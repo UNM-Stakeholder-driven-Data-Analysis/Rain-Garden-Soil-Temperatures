@@ -115,27 +115,34 @@ difftime(startDate, endDate, units = "hours")
 #### create sequence with correct number of rows ####
 
 #create sequence with correct dates and times
-seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63565)
+seq(ISOdatetime(2014,9,01, 00, 00, 00, 'US/Mountain'), by = "hour", length.out = 63566)
 
-#create data frame from sequence
-hour.df <- data.frame(hours=seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63565))
+#create data frame from sequence (this will not be used as it makes the data too messy)
+hour.df <- data.frame(hours=seq(ISOdatetime(2014,9,01, 00, 00, 00, 'US/Mountain'), by = "hour", length.out = 63566))
 
 #merge data frame from sequence with all data frames
-C1 <- merge(data.frame(C1, row.names = NULL), data.frame(hour.df, row.names=NULL),
+C1_m <- merge(data.frame(hour.df, row.names = NULL), data.frame(C1, row.names=NULL),
                     by = 0, all = TRUE)[-1]
-C2 <- merge(data.frame(C2, row.names = NULL), data.frame(hour.df, row.names=NULL),
+C2_m <- merge(data.frame(hour.df, row.names = NULL), data.frame(C2, row.names=NULL),
             by = 0, all = TRUE)[-1]
-T1 <- merge(data.frame(T1, row.names = NULL), data.frame(hour.df, row.names=NULL),
+T1_m <- merge(data.frame(hour.df, row.names = NULL), data.frame(T1, row.names=NULL),
             by = 0, all = TRUE)[-1]
-T2 <- merge(data.frame(T2, row.names = NULL), data.frame(hour.df, row.names=NULL),
+T2_m <- merge(data.frame(hour.df, row.names = NULL), data.frame(T2, row.names=NULL),
             by = 0, all = TRUE)[-1]
+##don't use the merge function
 
-#order/sort chronologically
-C1_correct <- C1[order(C1$hours),]
-C2_correct <- C2[order(C2$hours),]
-T1_correct <- T1[order(T1$hours),]
-T2_correct <- T2[order(T2$hours),]
+#use the join function instead
+C1_join <- data.frame(left_join(hour.df, C1, by = c("hours" = "date_time")))
+C2_join <- data.frame(left_join(hour.df, C2, by = c("hours" = "date_time")))
+T1_join <- data.frame(left_join(hour.df, T1, by = c("hours" = "date_time")))
+T2_join <- data.frame(left_join(hour.df, T2, by = c("hours" = "date_time")))
 
+
+#order/sort chronologically (not necessary for join function)
+C1_correct <- C1_m[order(C1_m$hours),]
+C2_correct <- C2_m[order(C2_m$hours),]
+T1_correct <- T1_m[order(T1_m$hours),]
+T2_correct <- T2_m[order(T2_m$hours),]
 
 
 #### import ambient air temperature data ####
