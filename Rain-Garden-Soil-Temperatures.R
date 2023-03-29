@@ -138,7 +138,7 @@ T2_correct <- T2[order(T2$hours),]
 
 
 
-#### import temperature data ####
+#### import ambient air temperature data ####
 
 # Importing temperature data for study period from NOAA station Santa Fe 2 to
 # have an ambient air temperature that can be used for comparison to soil
@@ -147,6 +147,13 @@ T2_correct <- T2[order(T2$hours),]
 
 #retrieve csv with hourly temperature data
 AirTemp = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/NOAA_AirportGauge_AirTemp.csv", header = TRUE)
+
+#### reformat date/time for ambient temperature data ####
+# view formats
+?strptime
+
+#create new date/time format
+AirTemp$date_hour=as.POSIXct(AirTemp$DATE, format="%m/%d/%y %H:%M", tz="MST")
 
 #### calculate mean of identical dates in data sets ####
 #identify duplicates in data frames
