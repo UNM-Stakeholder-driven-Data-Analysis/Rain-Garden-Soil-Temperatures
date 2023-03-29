@@ -53,10 +53,10 @@ View(T2)
 OlsonNames()
 
 #create new date/time format
-C1$date_time=as.POSIXct(C1$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
-C2$date_time=as.POSIXct(C2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
-T1$date_time=as.POSIXct(T1$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
-T2$date_time=as.POSIXct(T2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
+C1$date_time=as.POSIXct(C1$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="US/Mountain")
+C2$date_time=as.POSIXct(C2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="US/Mountain")
+T1$date_time=as.POSIXct(T1$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="US/Mountain")
+T2$date_time=as.POSIXct(T2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="US/Mountain")
 
 
 #### explore data set size and structure ####
@@ -100,8 +100,8 @@ ggplot(C1, aes(x = month, y = mean(X6.inches), group = NULL, color = NULL)) + ge
 summary(C1)
 
 #calculating total number of days in study period
-startDate <-as.Date("2014-09-01 00:00:00", tz = "MST")
-endDate <-as.Date("2021-12-01 12:00:00", tz = "MST")
+startDate <-as.Date("2014-09-01 00:00:00", tz = "US/Mountain")
+endDate <-as.Date("2021-12-01 12:00:00", tz = "US/Mountain")
 Noofdays <- endDate - startDate
 view(Noofdays)
 #total days is 2648
