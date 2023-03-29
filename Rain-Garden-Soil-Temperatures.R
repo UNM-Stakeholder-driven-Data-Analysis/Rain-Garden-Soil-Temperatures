@@ -155,6 +155,9 @@ AirTemp = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-G
 #create new date/time format
 AirTemp$date_hour=as.POSIXct(AirTemp$DATE, format="%m/%d/%y %H:%M", tz="MST")
 
+#### remove unwanted rows from ambient data ####
+AirTemp_corrected <- head(AirTemp, -13)
+
 #### calculate mean of identical dates in data sets ####
 #identify duplicates in data frames
 duplicated(C1_correct)
