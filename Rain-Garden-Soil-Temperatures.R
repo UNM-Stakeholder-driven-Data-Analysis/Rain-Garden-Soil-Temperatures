@@ -74,9 +74,29 @@ T2$date_time=as.POSIXct(T2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="US/
 
 #### explore data set size and structure ####
 
-#analyze and format C1
+#analyze C1
 head(C1)
 str(C1)
+
+#analyze C2
+head(C2)
+str(C2)
+
+#analyze T1
+head(T1)
+str(T1)
+##X6.inches is inaccurately classed as a character instead of a number, we need to reclassify it
+
+#convert X6.inches to column of numbers
+T1$X6.inches = as.numeric(T1$X6.inches)
+
+#check
+class(T1$X6.inches)
+##SUCCESS
+
+#analyze T2
+head(T2)
+str(T2)
 
 #plots of temperature values
 plot(C1$date_time, C1$X6.inches)
