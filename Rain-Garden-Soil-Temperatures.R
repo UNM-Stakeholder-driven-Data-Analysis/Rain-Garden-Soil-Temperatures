@@ -8,6 +8,19 @@
 library(tidyverse)
 library(lubridate)
 library(dplyr)
+library(psych)
+library(car)
+library(tsibble)
+library(ape)
+library(ade4)
+library(rgdal)
+
+#downloading uninstalled packages
+install.packages("psych")
+install.packages("tsibble")
+install.packages("ape")
+install.packages("ade4")
+install.packages("rgdal")
 
 #### retrieve data ####
 C1 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/C1_SoilTempData.csv", header = TRUE)
