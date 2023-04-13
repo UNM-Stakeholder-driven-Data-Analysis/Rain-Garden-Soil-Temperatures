@@ -59,6 +59,7 @@ View(T2)
 
 #date/time column is currently in "%m/%d/%Y %H:%M %p" format
 
+
 #### reformat date/time ####
 
 # view formats
@@ -68,10 +69,10 @@ View(T2)
 OlsonNames()
 
 #create new date/time format
-C1$date_time=as.POSIXct(C1$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="US/Mountain")
-C2$date_time=as.POSIXct(C2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="US/Mountain")
-T1$date_time=as.POSIXct(T1$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="US/Mountain")
-T2$date_time=as.POSIXct(T2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="US/Mountain")
+C1$date_time=as.POSIXct(C1$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
+C2$date_time=as.POSIXct(C2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
+T1$date_time=as.POSIXct(T1$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
+T2$date_time=as.POSIXct(T2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
 
 
 #### explore data set size and structure ####
