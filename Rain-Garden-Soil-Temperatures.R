@@ -172,25 +172,17 @@ AirTemp_ready <- AirTemp_joined[order(AirTemp_joined$allhours),]
 
 #### calculate mean of identical dates in data sets ####
 #identify duplicates in data frames
-duplicated(C1_correct)
-subset(C1_correct, duplicated(date_time))
+duplicated(C1_join)
+subset(C1_join, duplicated(allhours))
 
-duplicated(C2_correct)
-subset(C2_correct, duplicated(date_time))
+duplicated(C2_join)
+subset(C2_join, duplicated(allhours))
 
-duplicated(T1_correct)
-subset(T1_correct, duplicated(date_time))
+duplicated(T1_join)
+subset(T1_join, duplicated(allhours))
 
-duplicated(T2_correct)
-subset(T2_correct, duplicated(date_time))
-
-#calculate averages for temperature values of duplicate readings
-C1_correct %>% group_by(date_time)  %>% 
-  summarize(across(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean)
-##didn't work
-
-#idk what this code is for...
-length(unique(C1_correct$date_time)) == nrow(C1_correct)
+duplicated(T2_join)
+subset(T2_join, duplicated(allhours))
 
 #example code
 #data <- data.frame("id" = c(1,1, 3,3,5,5),
@@ -204,50 +196,24 @@ length(unique(C1_correct$date_time)) == nrow(C1_correct)
 #data %>% group_by(id, city, time = as.Date(time)) %>% summarize(across(c(temperature, pressure), mean))
 
 #calculate averages for temperature values of duplicate readings
-Control_1 <- C1_correct %>% group_by(date_time)  %>% 
+Control_1 <- C1_join %>% group_by(allhours)  %>% 
   summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
 
-Control_2 <- C2_correct %>% group_by(date_time)  %>% 
+Control_2 <- C2_join %>% group_by(allhours)  %>% 
   summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
 
-Test_1 <- T1_correct %>% group_by(date_time)  %>% 
-  summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
-##not working due to NA's, see next section
-
-Test_2 <- T2_correct %>% group_by(date_time)  %>% 
+Test_1 <- T1_join %>% group_by(allhours)  %>% 
   summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
 
+Test_2 <- T2_join %>% group_by(allhours)  %>% 
+  summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
 
 #now check
-subset(Control_1, duplicated(date_time))
+subset(Control_1, duplicated(allhours))
 
-subset(Control_2, duplicated(date_time))
+subset(Control_2, duplicated(allhours))
 
-subset(Test_1, duplicated(date_time))
+subset(Test_1, duplicated(allhours))
 
-subset(Test_2, duplicated(date_time))
+subset(Test_2, duplicated(allhours))
 
-#### identify missing rows/hours in data sets ####
-#copy to  ew dataframe
-NewT1 <- T1_correct
-
-#match indices
-inds1 <- match(T1_correct$hours, T1_correct$date_time)
-inds2 <- match(T1_correct$date_time, T1_correct$hours)
-
-#replace values 
-NewT1$date_time <- T1_correct$date_time[inds1]
-
-#order by hours column
-NewT1 <- NewT1[order(NewT1$date_time), ]
-
-#replace NA in hours with unmatched value
-NewT1$date_time[is.na(NewT1$date_time)] <- T1_correct$date_time[is.na(inds2)]
-
-#other code
-NewC1 <- match(C1_correct$date_time, C1_correct$hours)
-NewControlOne <- is.na(NewC1)
-NewControlOne <- as.data.frame(NewControlOne)
-data.frame(newdatetime=c(NewC1$date_time[!NewControlOne], NewC1$date_time[NewControlOne]),
-           newhours=c(NewC1$hours[NewControlOne[!NewControlOne]], NewC1$hours
-                      [!seq_along(NewC1$hours) %in% NewControlOne]))
