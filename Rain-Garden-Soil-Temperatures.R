@@ -14,6 +14,8 @@ library(tsibble)
 library(ape)
 library(ade4)
 library(rgdal)
+library(reshape2)
+library(simmr)
 
 #downloading uninstalled packages
 install.packages("psych")
