@@ -119,8 +119,8 @@ ggplot(C1, aes(x = month, y = mean(X6.inches), group = NULL, color = NULL)) + ge
 summary(C1)
 
 #calculating total number of days in study period
-startDate <-as.Date("2014-09-01 00:00:00", tz = "US/Mountain")
-endDate <-as.Date("2021-12-01 12:00:00", tz = "US/Mountain")
+startDate <-as.Date("2014-09-01 00:00:00", tz = "MST")
+endDate <-as.Date("2021-12-01 12:00:00", tz = "MST")
 Noofdays <- endDate - startDate
 view(Noofdays)
 #total days is 2648
@@ -134,34 +134,16 @@ difftime(startDate, endDate, units = "hours")
 #### create sequence with correct number of rows ####
 
 #create sequence with correct dates and times
-seq(ISOdatetime(2014,9,01, 00, 00, 00, 'US/Mountain'), by = "hour", length.out = 63566)
+seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63565)
 
 #create data frame from sequence (this will not be used as it makes the data too messy)
-hour.df <- data.frame(hours=seq(ISOdatetime(2014,9,01, 00, 00, 00, 'US/Mountain'), by = "hour", length.out = 63566))
+hour.df <- data.frame(hours=seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63565))
 
-#merge data frame from sequence with all data frames
-C1_m <- merge(data.frame(hour.df, row.names = NULL), data.frame(C1, row.names=NULL),
-                    by = 0, all = TRUE)[-1]
-C2_m <- merge(data.frame(hour.df, row.names = NULL), data.frame(C2, row.names=NULL),
-            by = 0, all = TRUE)[-1]
-T1_m <- merge(data.frame(hour.df, row.names = NULL), data.frame(T1, row.names=NULL),
-            by = 0, all = TRUE)[-1]
-T2_m <- merge(data.frame(hour.df, row.names = NULL), data.frame(T2, row.names=NULL),
-            by = 0, all = TRUE)[-1]
-##don't use the merge function
-
-#use the join function instead
-C1_join <- data.frame(left_join(hour.df, C1, by = c("hours" = "date_time")))
-C2_join <- data.frame(left_join(hour.df, C2, by = c("hours" = "date_time")))
-T1_join <- data.frame(left_join(hour.df, T1, by = c("hours" = "date_time")))
-T2_join <- data.frame(left_join(hour.df, T2, by = c("hours" = "date_time")))
-
-
-#order/sort chronologically (not necessary for join function)
-C1_correct <- C1_m[order(C1_m$hours),]
-C2_correct <- C2_m[order(C2_m$hours),]
-T1_correct <- T1_m[order(T1_m$hours),]
-T2_correct <- T2_m[order(T2_m$hours),]
+#use the join function 
+C1_join <- data.frame(left_join(hour.df, C1, by = c("allhours" = "date_time")))
+C2_join <- data.frame(left_join(hour.df, C2, by = c("allhours" = "date_time")))
+T1_join <- data.frame(left_join(hour.df, T1, by = c("allhours" = "date_time")))
+T2_join <- data.frame(left_join(hour.df, T2, by = c("allhours" = "date_time")))
 
 
 #### import ambient air temperature data ####
