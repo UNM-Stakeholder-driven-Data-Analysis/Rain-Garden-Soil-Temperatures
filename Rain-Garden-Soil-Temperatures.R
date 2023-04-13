@@ -159,8 +159,16 @@ AirTemp = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-G
 #create new date/time format
 AirTemp$date_hour=as.POSIXct(AirTemp$DATE, format="%m/%d/%y %H:%M", tz="MST")
 
-#### remove unwanted rows from ambient data ####
+#### prepare AirTemp data frame for processing ####
+#remove unwanted rows
 AirTemp_corrected <- head(AirTemp, -13)
+
+# use join function to deal with unsightly date/time in AirTemp #
+AirTemp_joined <- data.frame(right_join(hour.df, AirTemp_corrected, 
+                                           by = c("allhours" = "date_hour")))
+
+# sort chronologically
+AirTemp_ready <- AirTemp_joined[order(AirTemp_joined$allhours),]
 
 #### calculate mean of identical dates in data sets ####
 #identify duplicates in data frames
