@@ -109,10 +109,6 @@ ggplot2::qplot(x=date_time, y=X6.inches, data=C1, geom="point")
 ggplot2::qplot(x=X6.inches, data=C1, geom="histogram")+
   facet_grid(.~1)
 
-#plotting tibbles 
-DFlng$month <- factor(DFlng$month)
-ggplot(C1, aes(x = month, y = mean(X6.inches), group = NULL, color = NULL)) + geom_line()
-
 #### calculating correct number of hours ####
 
 #get first and last days
