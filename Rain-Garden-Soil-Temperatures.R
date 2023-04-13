@@ -133,7 +133,7 @@ difftime(startDate, endDate, units = "hours")
 seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63565)
 
 #create data frame from sequence (this will not be used as it makes the data too messy)
-hour.df <- data.frame(hours=seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63565))
+hour.df <- data.frame(allhours=seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "hour", length.out = 63565))
 
 #use the join function 
 C1_join <- data.frame(left_join(hour.df, C1, by = c("allhours" = "date_time")))
