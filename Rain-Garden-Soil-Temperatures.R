@@ -192,6 +192,9 @@ subset(T1_join, duplicated(allhours))
 duplicated(T2_join)
 subset(T2_join, duplicated(allhours))
 
+duplicated(AirTemp_ready)
+subset(AirTemp_ready, duplicated(allhours))
+
 #example code
 #data <- data.frame("id" = c(1,1, 3,3,5,5),
 #                     "city" = c("new_york", "new_york", "london", "london", "barcelona", "barcelona"),
@@ -201,7 +204,7 @@ subset(T2_join, duplicated(allhours))
 #                                "2015-02-10 07:00:00", "2015-02-10 20:30:00",
 #                                "2015-04-08 08:00:00", "2015-04-08 12:00:00"),stringsAsFactors = FALSE)
 
-#data %>% group_by(id, city, time = as.Date(time)) %>% summarize(across(c(temperature, pressure), mean))
+# data %>% group_by(id, city, time = as.Date(time)) %>% summarize(across(c(temperature, pressure), mean))
 
 #calculate averages for temperature values of duplicate readings
 Control_1 <- C1_join %>% group_by(allhours)  %>% 
@@ -215,6 +218,9 @@ Test_1 <- T1_join %>% group_by(allhours)  %>%
 
 Test_2 <- T2_join %>% group_by(allhours)  %>% 
   summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
+
+AmbientAir <- AirTemp_ready %>% group_by(allhours) %>%
+  summarize(across(c(HourlyDryBulbTemperature), mean))
 
 #now check
 subset(Control_1, duplicated(allhours))
