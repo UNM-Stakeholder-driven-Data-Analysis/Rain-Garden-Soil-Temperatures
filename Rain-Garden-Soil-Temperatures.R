@@ -160,10 +160,18 @@ AirTemp = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-G
 AirTemp$date_hour=as.POSIXct(AirTemp$DATE, format="%m/%d/%y %H:%M", tz="MST")
 
 #### prepare AirTemp data frame for processing ####
-#remove unwanted rows
+# check class
+class(AirTemp$HourlyDryBulbTemperature)
+#currently classified as a character, we must convert it
+
+# convert to numeric value
+AirTemp$HourlyDryBulbTemperature = as.numeric(AirTemp$HourlyDryBulbTemperature)
+##SUCCESS 
+
+# remove unwanted rows
 AirTemp_corrected <- head(AirTemp, -13)
 
-# use join function to deal with unsightly date/time in AirTemp #
+# use join function to combine with correct number of hours
 AirTemp_joined <- data.frame(right_join(hour.df, AirTemp_corrected, 
                                            by = c("allhours" = "date_hour")))
 
