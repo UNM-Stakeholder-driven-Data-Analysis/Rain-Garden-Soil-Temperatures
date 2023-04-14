@@ -300,3 +300,66 @@ library(imputeTS)
 library(tseries)
 library(astsa)
 library(WaveletComp)
+
+
+
+
+
+
+
+
+#### Apparently there are NA's, we MUST FILL ####
+
+## fill with linear interpolation
+
+# Make univariate zoo time series #
+# example code
+# ts.temp<-read.zoo(C2_no3, index.column=1, format="%Y-%m-%d %H:%M:%S", tz="America/Anchorage")
+
+Temporary_TS_C1 <- read.zoo(Control_1_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
+Temporary_TS_C2 <- read.zoo(Control_2_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
+
+# Apply NA interpolation method #
+# example code
+# C2_no3_filled_linearinterp = na.approx(ts.temp, na.rm = T, maxgap = 24*4)
+
+Control_1_Daily_linearfilled <- na.approx(Temporary_TS_C1, na.rm = T, maxgap = 24)
+Control_2_Daily_linearfilled <- na.approx(Temporary_TS_C2, na.rm = T, maxgap = 24)
+
+# revert back to data frame #
+# example code
+# C2_no3_filled_linearinterp = as.data.frame(C2_no3_filled_linearinterp)
+
+plot(Control_1_Daily_linearfilled <- as.data.frame(Control_1_Daily_linearfilled))
+
+# fill with spline interpolation #
+
+# Apply NA interpolation method 
+
+# example code
+# C2_no3_filled_splineinterp = na.spline(ts.temp, na.rm = T, maxgap = 24*4)
+
+Control_1_Daily_splinefilled <- na.spline(Temporary_TS_C1, na.rm = T, maxgap = 24)
+
+# revert back to data frame #
+
+#example code
+# C2_no3_filled_splineinterp = as.data.frame(C2_no3_filled_splineinterp)
+
+Control_1_Daily_splinefilled <- as.data.frame(Control_1_Daily_splinefilled)
+
+#### Create a time series ####
+
+## Create time series object, check class, and plot ## 
+
+# example code
+# C2_no3_xts = xts(C2_no3_filled_splineinterp$nitrate_uM_c_bc, order.by = 
+# C2_no3_filled_splineinterp$date_timeAK)
+# class(C2_no3_xts)
+# plot(C2_no3_xts)
+# summary(C2_no3_xts)
+
+Control_1_xts <- xts(Control_1_Daily$X30.inches, order.by = 
+                       Control_1_Daily$allhours)
+
+#### Deal wit autocorrelation
