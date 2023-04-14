@@ -292,3 +292,11 @@ install.packages("imputeTS")
 install.packages("tseries")
 install.packages("astsa")
 install.packages("WaveletComp")
+
+# open them 
+
+library(xts)
+library(imputeTS)
+library(tseries)
+library(astsa)
+library(WaveletComp)
