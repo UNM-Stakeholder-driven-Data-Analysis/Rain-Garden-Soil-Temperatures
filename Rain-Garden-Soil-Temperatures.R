@@ -340,11 +340,13 @@ Air_Daily_linearfilled <- na.approx(Temporary_TS_Air, na.rm = T, maxgap = 24)
 # example code
 # C2_no3_filled_linearinterp = as.data.frame(C2_no3_filled_linearinterp)
 
-plot(Control_1_Daily_linearfilled <- as.data.frame(Control_1_Daily_linearfilled))
-plot(Control_2_Daily_linearfilled <- as.data.frame(Control_2_Daily_linearfilled))
-plot(Test_1_Daily_linearfilled <- as.data.frame(Test_1_Daily_linearfilled))
-plot(Test_2_Daily_linearfilled <- as.data.frame(Test_2_Daily_linearfilled))
-plot(Air_Daily_linearfilled <- as.data.frame(Air_Daily_linearfilled))
+Control_1_Daily_linearfilled <- as.data.frame(Control_1_Daily_linearfilled)
+Control_2_Daily_linearfilled <- as.data.frame(Control_2_Daily_linearfilled)
+Test_1_Daily_linearfilled <- as.data.frame(Test_1_Daily_linearfilled)
+Test_2_Daily_linearfilled <- as.data.frame(Test_2_Daily_linearfilled)
+Air_Daily_linearfilled <- as.data.frame(Air_Daily_linearfilled)
+## Linear interpolation leaves Test_1 site without a value for the last day/final value 
+## so I will use spline interpolation instead.
 
 # fill with spline interpolation #
 
@@ -363,12 +365,65 @@ Air_Daily_splinefilled <- na.spline(Temporary_TS_Air, na.rm = T, maxgap = 24)
 
 #example code
 # C2_no3_filled_splineinterp = as.data.frame(C2_no3_filled_splineinterp)
-
 Control_1_Daily_splinefilled <- as.data.frame(Control_1_Daily_splinefilled)
 Control_2_Daily_splinefilled <- as.data.frame(Control_2_Daily_splinefilled)
 Test_1_Daily_splinefilled <- as.data.frame(Test_1_Daily_splinefilled)
 Test_2_Daily_splinefilled <- as.data.frame(Test_2_Daily_splinefilled)
 Air_Daily_splinefilled <- as.data.frame(Air_Daily_splinefilled)
+
+# once again, we must reduce decimal points
+round(Control_1_Daily_splinefilled, digits = 1)
+round(Control_2_Daily_splinefilled, digits = 1)
+round(Test_1_Daily_splinefilled, digits = 1)
+round(Test_2_Daily_splinefilled, digits = 1)
+round(Air_Daily_splinefilled, digits = 1)
+
+# make into data frames
+Control_1_splinefilled <- as.data.frame(round(Control_1_Daily_splinefilled, digits = 1))
+Control_2_splinefilled <- as.data.frame(round(Control_2_Daily_splinefilled, digits = 1))
+Test_1_splinefilled <- as.data.frame(round(Test_1_Daily_splinefilled, digits = 1))
+Test_2_splinefilled <- as.data.frame(round(Test_2_Daily_splinefilled, digits = 1))
+Air_splinefilled <- as.data.frame(round(Air_Daily_splinefilled, digits = 1))
+
+## lets try plotting ##
+
+# create with a sequence that features all days 
+seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "day", length.out = 2649)
+
+#create data frame from sequence
+alldays <- data.frame(alldays=seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "day", length.out = 2649))
+
+# merge alldays sequence with all data frames
+Control_1_splinefilled_merged <-merge(data.frame(Control_1_splinefilled, 
+                                  row.names = NULL), data.frame(alldays, row.names=NULL),
+                                  by = 0, all = TRUE)[-1]
+
+Control_2_splinefilled_merged <-merge(data.frame(Control_2_splinefilled, 
+                                  row.names = NULL), data.frame(alldays, row.names=NULL),
+                                  by = 0, all = TRUE)[-1]
+
+Test_1_splinefilled_merged <-merge(data.frame(Test_1_splinefilled, 
+                               row.names = NULL), data.frame(alldays, row.names=NULL),
+                               by = 0, all = TRUE)[-1]
+
+Test_2_splinefilled_merged <-merge(data.frame(Test_2_splinefilled, 
+                               row.names = NULL), data.frame(alldays, row.names=NULL),
+                               by = 0, all = TRUE)[-1]
+
+Air_splinefilled_merged <-merge(data.frame(Air_splinefilled, 
+                          row.names = NULL), data.frame(alldays, row.names=NULL),
+                          by = 0, all = TRUE)[-1]
+
+# sort chronologically 
+Control_One_splinefilled_sorted <- Control_1_splinefilled_merged[order(Control_1_splinefilled_merged$alldays),]
+Control_Two_splinefilled_sorted <- Control_2_splinefilled_merged[order(Control_2_splinefilled_merged$alldays),]
+Test_One_splinefilled_sorted <- Test_1_splinefilled_merged[order(Test_1_splinefilled_merged$alldays),]
+Test_Two_splinefilled_sorted <- Test_2_splinefilled_merged[order(Test_2_splinefilled_merged$alldays),]
+Air_splinefilled_sorted <- Air_splinefilled_merged[order(Air_splinefilled_merged$alldays),]
+
+# now, try plotting
+
+
 
 #### Create a time series ####
 
