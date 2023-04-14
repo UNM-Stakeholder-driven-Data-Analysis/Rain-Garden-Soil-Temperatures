@@ -269,6 +269,7 @@ AmbientAir_Daily <- data.frame(AmbientAir_ready %>% group_by(allhours = as.Date(
 # mydf %>% mutate_at(vars(-vch1), funs(round(., 1)))
 
 Control_1_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
+
 Control_1_Daily_rounded <- Control_1_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
 
 Control_2_Daily_rounded <- Control_2_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
@@ -276,6 +277,9 @@ Control_2_Daily_rounded <- Control_2_Daily %>% mutate_at(vars(-allhours), funs(r
 Test_1_Daily_rounded <- Test_1_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
 
 Test_2_Daily_rounded <- Test_2_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
+
+AmbientAir_Daily_rounded <- AmbientAir_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
+
 #### read me ####
 
 # Now that our data has been cleaned up, we can create a time series 
