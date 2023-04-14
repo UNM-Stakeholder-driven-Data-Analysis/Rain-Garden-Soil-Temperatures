@@ -322,6 +322,9 @@ library(WaveletComp)
 
 Temporary_TS_C1 <- read.zoo(Control_1_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
 Temporary_TS_C2 <- read.zoo(Control_2_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
+Temporary_TS_T1 <- read.zoo(Test_1_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
+Temporary_TS_T2 <- read.zoo(Test_2_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
+Temporary_TS_Air <- read.zoo(AmbientAir_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
 
 # Apply NA interpolation method #
 # example code
@@ -329,12 +332,19 @@ Temporary_TS_C2 <- read.zoo(Control_2_Daily_rounded, index.column=1, format="%Y-
 
 Control_1_Daily_linearfilled <- na.approx(Temporary_TS_C1, na.rm = T, maxgap = 24)
 Control_2_Daily_linearfilled <- na.approx(Temporary_TS_C2, na.rm = T, maxgap = 24)
+Test_1_Daily_linearfilled <- na.approx(Temporary_TS_T1, na.rm = T, maxgap = 24)
+Test_2_Daily_linearfilled <- na.approx(Temporary_TS_T2, na.rm = T, maxgap = 24)
+Air_Daily_linearfilled <- na.approx(Temporary_TS_Air, na.rm = T, maxgap = 24)
 
 # revert back to data frame #
 # example code
 # C2_no3_filled_linearinterp = as.data.frame(C2_no3_filled_linearinterp)
 
 plot(Control_1_Daily_linearfilled <- as.data.frame(Control_1_Daily_linearfilled))
+plot(Control_2_Daily_linearfilled <- as.data.frame(Control_2_Daily_linearfilled))
+plot(Test_1_Daily_linearfilled <- as.data.frame(Test_1_Daily_linearfilled))
+plot(Test_2_Daily_linearfilled <- as.data.frame(Test_2_Daily_linearfilled))
+plot(Air_Daily_linearfilled <- as.data.frame(Air_Daily_linearfilled))
 
 # fill with spline interpolation #
 
@@ -344,6 +354,10 @@ plot(Control_1_Daily_linearfilled <- as.data.frame(Control_1_Daily_linearfilled)
 # C2_no3_filled_splineinterp = na.spline(ts.temp, na.rm = T, maxgap = 24*4)
 
 Control_1_Daily_splinefilled <- na.spline(Temporary_TS_C1, na.rm = T, maxgap = 24)
+Control_2_Daily_splinefilled <- na.spline(Temporary_TS_C2, na.rm = T, maxgap = 24)
+Test_1_Daily_splinefilled <- na.spline(Temporary_TS_T1, na.rm = T, maxgap = 24)
+Test_2_Daily_splinefilled <- na.spline(Temporary_TS_T2, na.rm = T, maxgap = 24)
+Air_Daily_splinefilled <- na.spline(Temporary_TS_Air, na.rm = T, maxgap = 24)
 
 # revert back to data frame #
 
@@ -351,6 +365,10 @@ Control_1_Daily_splinefilled <- na.spline(Temporary_TS_C1, na.rm = T, maxgap = 2
 # C2_no3_filled_splineinterp = as.data.frame(C2_no3_filled_splineinterp)
 
 Control_1_Daily_splinefilled <- as.data.frame(Control_1_Daily_splinefilled)
+Control_2_Daily_splinefilled <- as.data.frame(Control_2_Daily_splinefilled)
+Test_1_Daily_splinefilled <- as.data.frame(Test_1_Daily_splinefilled)
+Test_2_Daily_splinefilled <- as.data.frame(Test_2_Daily_splinefilled)
+Air_Daily_splinefilled <- as.data.frame(Air_Daily_splinefilled)
 
 #### Create a time series ####
 
