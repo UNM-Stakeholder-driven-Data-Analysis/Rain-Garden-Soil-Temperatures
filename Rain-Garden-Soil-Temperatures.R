@@ -264,6 +264,15 @@ Test_2_Daily <- data.frame(Test_2 %>% group_by(allhours = as.Date(allhours))
 AmbientAir_Daily <- data.frame(AmbientAir_ready %>% group_by(allhours = as.Date(allhours))
                     %>% summarise(across(c(HourlyDryBulbTemperature), mean)))
 
+# remove excessive decimal places
+# example code
+# mydf %>% mutate_at(vars(-vch1), funs(round(., 1)))
 
+Control_1_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
+Control_1_Daily_rounded <- Control_1_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
 
+Control_2_Daily_rounded <- Control_2_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
 
+Test_1_Daily_rounded <- Test_1_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
+
+Test_2_Daily_rounded <- Test_2_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
