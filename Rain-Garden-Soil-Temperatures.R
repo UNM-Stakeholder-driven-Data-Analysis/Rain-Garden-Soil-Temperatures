@@ -231,3 +231,39 @@ subset(Test_1, duplicated(allhours))
 
 subset(Test_2, duplicated(allhours))
 
+subset(AmbientAir, duplicated(allhours))
+
+#### identify missing values in Air Temp data ####
+
+AmbientAir[!complete.cases(AmbientAir),]
+
+AmbientAir_ready <- na.omit(AmbientAir)
+
+#### create average daily values ####
+# calculate daily mean
+# example code
+# data %>% group_by(id, city, time = as.Date(time)) %>% 
+# summarise(across(c(temperature, pressure), mean))
+
+Control_1_Daily <- data.frame(Control_1 %>% group_by(allhours = as.Date(allhours))
+                  %>% summarise(across(c(X30.inches, X24.inches, X18.inches,
+                  X12.inches, X6.inches), mean)))
+
+Control_2_Daily <- data.frame(Control_2 %>% group_by(allhours = as.Date(allhours))
+                    %>% summarise(across(c(X30.inches, X24.inches, X18.inches,
+                    X12.inches, X6.inches), mean)))
+
+Test_1_Daily <- data.frame(Test_1 %>% group_by(allhours = as.Date(allhours))
+                %>% summarise(across(c(X30.inches, X24.inches, X18.inches,
+                X12.inches, X6.inches), mean)))
+
+Test_2_Daily <- data.frame(Test_2 %>% group_by(allhours = as.Date(allhours))
+                %>% summarise(across(c(X30.inches, X24.inches, X18.inches,
+                X12.inches, X6.inches), mean)))
+
+AmbientAir_Daily <- data.frame(AmbientAir_ready %>% group_by(allhours = as.Date(allhours))
+                    %>% summarise(across(c(HourlyDryBulbTemperature), mean)))
+
+
+
+
