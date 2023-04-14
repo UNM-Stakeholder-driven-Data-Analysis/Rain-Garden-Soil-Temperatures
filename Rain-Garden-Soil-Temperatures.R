@@ -276,3 +276,19 @@ Control_2_Daily_rounded <- Control_2_Daily %>% mutate_at(vars(-allhours), funs(r
 Test_1_Daily_rounded <- Test_1_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
 
 Test_2_Daily_rounded <- Test_2_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
+#### read me ####
+
+# Now that our data has been cleaned up, we can create a time series 
+# and begin analyzing.
+
+###
+
+#### libraries ####
+
+# install necessary libraries 
+
+install.packages("xts")
+install.packages("imputeTS")
+install.packages("tseries")
+install.packages("astsa")
+install.packages("WaveletComp")
