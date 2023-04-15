@@ -16,6 +16,8 @@ library(ade4)
 library(rgdal)
 library(reshape2)
 library(simmr)
+library(ggplot2)
+library(reshape2)
 
 #downloading uninstalled packages
 install.packages("psych")
@@ -176,7 +178,7 @@ AirTemp_joined <- data.frame(right_join(hour.df, AirTemp_corrected,
                                            by = c("allhours" = "date_hour")))
 
 # sort chronologically
-AirTemp_ready <- AirTemp_joined[order(AirTemp_joined$allhours),]
+AirTemp_sorted <- AirTemp_joined[order(AirTemp_joined$allhours),]
 
 #### calculate mean of identical dates in data sets ####
 #identify duplicates in data frames
@@ -219,7 +221,7 @@ Test_1 <- T1_join %>% group_by(allhours)  %>%
 Test_2 <- T2_join %>% group_by(allhours)  %>% 
   summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
 
-AmbientAir <- AirTemp_ready %>% group_by(allhours) %>%
+AmbientAir <- AirTemp_sorted %>% group_by(allhours) %>%
   summarize(across(c(HourlyDryBulbTemperature), mean))
 
 #now check
@@ -245,40 +247,44 @@ AmbientAir_ready <- na.omit(AmbientAir)
 # data %>% group_by(id, city, time = as.Date(time)) %>% 
 # summarise(across(c(temperature, pressure), mean))
 
-Control_1_Daily <- data.frame(Control_1 %>% group_by(allhours = as.Date(allhours))
+Control_1_Daily <- data.frame(Control_1 %>% group_by(alldays = as.Date(allhours))
                   %>% summarise(across(c(X30.inches, X24.inches, X18.inches,
                   X12.inches, X6.inches), mean)))
 
-Control_2_Daily <- data.frame(Control_2 %>% group_by(allhours = as.Date(allhours))
+Control_2_Daily <- data.frame(Control_2 %>% group_by(alldays = as.Date(allhours))
                     %>% summarise(across(c(X30.inches, X24.inches, X18.inches,
                     X12.inches, X6.inches), mean)))
 
-Test_1_Daily <- data.frame(Test_1 %>% group_by(allhours = as.Date(allhours))
+Test_1_Daily <- data.frame(Test_1 %>% group_by(alldays = as.Date(allhours))
                 %>% summarise(across(c(X30.inches, X24.inches, X18.inches,
                 X12.inches, X6.inches), mean)))
 
-Test_2_Daily <- data.frame(Test_2 %>% group_by(allhours = as.Date(allhours))
+Test_2_Daily <- data.frame(Test_2 %>% group_by(alldays = as.Date(allhours))
                 %>% summarise(across(c(X30.inches, X24.inches, X18.inches,
                 X12.inches, X6.inches), mean)))
 
-AmbientAir_Daily <- data.frame(AmbientAir_ready %>% group_by(allhours = as.Date(allhours))
+AmbientAir_Daily <- data.frame(AmbientAir_ready %>% group_by(alldays = as.Date(allhours))
                     %>% summarise(across(c(HourlyDryBulbTemperature), mean)))
 
 # remove excessive decimal places
+
 # example code
 # mydf %>% mutate_at(vars(-vch1), funs(round(., 1)))
 
-Control_1_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
+Control_1_Daily_rounded <- Control_1_Daily %>% mutate_at(vars(-alldays), funs(round(., 1)))
 
-Control_1_Daily_rounded <- Control_1_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
+Control_2_Daily_rounded <- Control_2_Daily %>% mutate_at(vars(-alldays), funs(round(., 1)))
 
-Control_2_Daily_rounded <- Control_2_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
+Test_1_Daily_rounded <- Test_1_Daily %>% mutate_at(vars(-alldays), funs(round(., 1)))
 
-Test_1_Daily_rounded <- Test_1_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
+Test_2_Daily_rounded <- Test_2_Daily %>% mutate_at(vars(-alldays), funs(round(., 1)))
 
-Test_2_Daily_rounded <- Test_2_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
+AmbientAir_Daily_rounded <- AmbientAir_Daily %>% mutate_at(vars(-alldays), funs(round(., 1)))
 
-AmbientAir_Daily_rounded <- AmbientAir_Daily %>% mutate_at(vars(-allhours), funs(round(., 1)))
+class(AmbientAir_Daily_rounded$alldays)
+class(AmbientAir_Daily_rounded$HourlyDryBulbTemperature)
+class(Test_1_Daily_rounded$alldays)
+class(Test_1_Daily_rounded$X30.inches)
 
 #### read me ####
 
@@ -287,10 +293,9 @@ AmbientAir_Daily_rounded <- AmbientAir_Daily %>% mutate_at(vars(-allhours), funs
 
 ###
 
-#### libraries ####
+#### more libraries ####
 
 # install necessary libraries 
-
 install.packages("xts")
 install.packages("imputeTS")
 install.packages("tseries")
@@ -298,18 +303,11 @@ install.packages("astsa")
 install.packages("WaveletComp")
 
 # open them 
-
 library(xts)
 library(imputeTS)
 library(tseries)
 library(astsa)
 library(WaveletComp)
-
-
-
-
-
-
 
 
 #### Apparently there are NA's, we MUST FILL ####
@@ -321,12 +319,18 @@ library(WaveletComp)
 # ts.temp<-read.zoo(C2_no3, index.column=1, format="%Y-%m-%d %H:%M:%S", tz="America/Anchorage")
 
 Temporary_TS_C1 <- read.zoo(Control_1_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
+view(Temporary_TS_C1 <- read.zoo(Control_1_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST"))
+
 Temporary_TS_C2 <- read.zoo(Control_2_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
 Temporary_TS_T1 <- read.zoo(Test_1_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
 Temporary_TS_T2 <- read.zoo(Test_2_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
-Temporary_TS_Air <- read.zoo(AmbientAir_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
 
-# Apply NA interpolation method #
+Temporary_TS_Air <- read.zoo(AmbientAir_Daily_rounded, index.column = 1, format="%Y-%m-%d", tz="MST")
+view(Temporary_TS_Air <- read.zoo(AmbientAir_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST"))
+## Column name for temperature has changed to simply "x", will adjust later ##
+
+## DO NOT USE LINEAR INTERPOLATION ##
+# Apply linear interpolation method #
 # example code
 # C2_no3_filled_linearinterp = na.approx(ts.temp, na.rm = T, maxgap = 24*4)
 
@@ -345,12 +349,13 @@ Control_2_Daily_linearfilled <- as.data.frame(Control_2_Daily_linearfilled)
 Test_1_Daily_linearfilled <- as.data.frame(Test_1_Daily_linearfilled)
 Test_2_Daily_linearfilled <- as.data.frame(Test_2_Daily_linearfilled)
 Air_Daily_linearfilled <- as.data.frame(Air_Daily_linearfilled)
+
 ## Linear interpolation leaves Test_1 site without a value for the last day/final value 
 ## so I will use spline interpolation instead.
 
 # fill with spline interpolation #
 
-# Apply NA interpolation method 
+# Apply spline interpolation method 
 
 # example code
 # C2_no3_filled_splineinterp = na.spline(ts.temp, na.rm = T, maxgap = 24*4)
@@ -365,6 +370,7 @@ Air_Daily_splinefilled <- na.spline(Temporary_TS_Air, na.rm = T, maxgap = 24)
 
 #example code
 # C2_no3_filled_splineinterp = as.data.frame(C2_no3_filled_splineinterp)
+
 Control_1_Daily_splinefilled <- as.data.frame(Control_1_Daily_splinefilled)
 Control_2_Daily_splinefilled <- as.data.frame(Control_2_Daily_splinefilled)
 Test_1_Daily_splinefilled <- as.data.frame(Test_1_Daily_splinefilled)
@@ -421,13 +427,12 @@ Test_One_splinefilled_sorted <- Test_1_splinefilled_merged[order(Test_1_splinefi
 Test_Two_splinefilled_sorted <- Test_2_splinefilled_merged[order(Test_2_splinefilled_merged$alldays),]
 Air_splinefilled_sorted <- Air_splinefilled_merged[order(Air_splinefilled_merged$alldays),]
 
-# now, try plotting
-
-
+# rename column in ambient air temperature data frame 
+colnames(Air_splinefilled_sorted) <- c('AverageDailyTemperature', 'alldays')
 
 #### Create a time series ####
 
-## Create time series object, check class, and plot ## 
+## Create time series objects, check class, and plot ## 
 
 # example code
 # C2_no3_xts = xts(C2_no3_filled_splineinterp$nitrate_uM_c_bc, order.by = 
