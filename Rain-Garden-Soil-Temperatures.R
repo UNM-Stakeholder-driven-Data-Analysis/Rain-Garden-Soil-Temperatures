@@ -27,10 +27,18 @@ install.packages("ade4")
 install.packages("rgdal")
 
 #### retrieve data ####
+# Importing data from stakeholder
 C1 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/C1_SoilTempData.csv", header = TRUE)
 C2 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/C2_SoilTempData.csv", header = TRUE)
 T1 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/T1_SoilTempData.csv", header = TRUE)
 T2 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/T2_SoilTempData.csv", header = TRUE)
+
+# Importing temperature data for study period from NOAA station Santa Fe 2 to
+# have an ambient air temperature that can be used for comparison to soil
+# temperature data. NOAA station is approximately 3.37 miles away from study 
+# site.
+#retrieve csv with hourly temperature data
+AirTemp = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/NOAA_AirportGauge_AirTemp.csv", header = TRUE)
 
 #### examine date/time ####
 
@@ -58,8 +66,7 @@ head(T2$Measurement.Time)
 tail(T2$Measurement.Time)
 View(T2)
 
-
-#date/time column is currently in "%m/%d/%Y %H:%M %p" format
+# date/time column is currently in "%m/%d/%Y %H:%M %p" format
 
 
 #### reformat date/time ####
@@ -67,7 +74,7 @@ View(T2)
 # view formats
 ?strptime
 
-#view timezones
+#view time zones
 OlsonNames()
 
 #create new date/time format
@@ -75,6 +82,7 @@ C1$date_time=as.POSIXct(C1$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST
 C2$date_time=as.POSIXct(C2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
 T1$date_time=as.POSIXct(T1$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
 T2$date_time=as.POSIXct(T2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST")
+AirTemp$date_hour=as.POSIXct(AirTemp$DATE, format="%m/%d/%y %H:%M", tz="MST")
 
 
 #### explore data set size and structure ####
@@ -102,6 +110,17 @@ class(T1$X6.inches)
 #analyze T2
 head(T2)
 str(T2)
+
+# check class
+class(AirTemp$HourlyDryBulbTemperature)
+#currently classified as a character, we must convert it
+
+# convert to numeric value
+AirTemp$HourlyDryBulbTemperature = as.numeric(AirTemp$HourlyDryBulbTemperature)
+##SUCCESS 
+
+# remove unwanted rows
+AirTemp_corrected <- head(AirTemp, -13)
 
 #plots of temperature values
 plot(x = C1$date_time, y = C1$X6.inches)
@@ -144,41 +163,24 @@ T1_join <- data.frame(left_join(hour.df, T1, by = c("allhours" = "date_time")))
 T2_join <- data.frame(left_join(hour.df, T2, by = c("allhours" = "date_time")))
 
 
-#### import ambient air temperature data ####
-
-# Importing temperature data for study period from NOAA station Santa Fe 2 to
-# have an ambient air temperature that can be used for comparison to soil
-# temperature data. NOAA station is approximately 3.37 miles away from study 
-# site.
-
-#retrieve csv with hourly temperature data
-AirTemp = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/NOAA_AirportGauge_AirTemp.csv", header = TRUE)
-
-#### reformat date/time for ambient temperature data ####
-# view formats
-?strptime
-
-#create new date/time format
-AirTemp$date_hour=as.POSIXct(AirTemp$DATE, format="%m/%d/%y %H:%M", tz="MST")
-
 #### prepare AirTemp data frame for processing ####
-# check class
-class(AirTemp$HourlyDryBulbTemperature)
-#currently classified as a character, we must convert it
-
-# convert to numeric value
-AirTemp$HourlyDryBulbTemperature = as.numeric(AirTemp$HourlyDryBulbTemperature)
-##SUCCESS 
-
-# remove unwanted rows
-AirTemp_corrected <- head(AirTemp, -13)
-
 # use join function to combine with correct number of hours
 AirTemp_joined <- data.frame(right_join(hour.df, AirTemp_corrected, 
                                            by = c("allhours" = "date_hour")))
 
 # sort chronologically
 AirTemp_sorted <- AirTemp_joined[order(AirTemp_joined$allhours),]
+
+## create table for Technical Report ##
+AirTemp_sorted[1:10,]
+AirTemp_Table <- as.data.frame(AirTemp_sorted[1:10,])
+
+# example code for exporting
+# write.csv(DataFrame Name, "Path to export the DataFrame\\File Name.csv", 
+# row.names=FALSE)
+write.csv(AirTemp_Table, "~/Documents/Data Analysis/R\\AirTemp_Table.csv", 
+          row.names = FALSE)                    
+                   
 
 #### calculate mean of identical dates in data sets ####
 #identify duplicates in data frames
