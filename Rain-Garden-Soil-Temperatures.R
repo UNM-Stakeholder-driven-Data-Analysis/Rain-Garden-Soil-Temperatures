@@ -391,7 +391,7 @@ Test_1_splinefilled <- as.data.frame(round(Test_1_Daily_splinefilled, digits = 1
 Test_2_splinefilled <- as.data.frame(round(Test_2_Daily_splinefilled, digits = 1))
 Air_splinefilled <- as.data.frame(round(Air_Daily_splinefilled, digits = 1))
 
-## lets try plotting ##
+#### re-add date sequence as a column ####
 
 # create with a sequence that features all days 
 seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "day", length.out = 2649)
@@ -441,7 +441,169 @@ colnames(Air_splinefilled_sorted) <- c('AverageDailyTemperature', 'alldays')
 # plot(C2_no3_xts)
 # summary(C2_no3_xts)
 
-Control_1_xts <- xts(Control_1_Daily$X30.inches, order.by = 
-                       Control_1_Daily$allhours)
+# Control One
+Control_One_30in_xts <- xts(Control_One_splinefilled_sorted$X30.inches, order.by = 
+                         Control_One_splinefilled_sorted$alldays)
+# check class
+class(Control_One_30in_xts)
 
-#### Deal wit autocorrelation
+# change column name
+colnames(Control_One_30in_xts) <- c('X30.inches')
+
+# create plot
+plot(Control_One_30in_xts)
+
+## repeat for all sensor depths ##
+
+# 24 inches
+Control_One_24in_xts <- xts(Control_One_splinefilled_sorted$X24.inches, order.by = 
+                         Control_One_splinefilled_sorted$alldays)
+colnames(Control_One_24in_xts) <- c('X24.inches')
+plot(Control_One_24in_xts)
+
+# 18 inches
+Control_One_18in_xts <- xts(Control_One_splinefilled_sorted$X18.inches, order.by = 
+                            Control_One_splinefilled_sorted$alldays)
+colnames(Control_One_18in_xts) <- c('X18.inches')
+plot(Control_One_18in_xts)
+
+# 12 inches
+Control_One_12in_xts <- xts(Control_One_splinefilled_sorted$X12.inches, order.by = 
+                              Control_One_splinefilled_sorted$alldays)
+colnames(Control_One_12in_xts) <- c('X12.inches')
+plot(Control_One_12in_xts)
+
+# 6 inches
+Control_One_6in_xts <- xts(Control_One_splinefilled_sorted$X6.inches, order.by = 
+                              Control_One_splinefilled_sorted$alldays)
+colnames(Control_One_6in_xts) <- c('X6.inches')
+plot(Control_One_6in_xts)
+
+
+## Control Two ##
+
+# 30 inches
+Control_Two_30in_xts <- xts(Control_Two_splinefilled_sorted$X30.inches, order.by = 
+                         Control_Two_splinefilled_sorted$alldays)
+class(Control_Two_30in_xts)
+plot(Control_Two_30in_xts)
+colnames(Control_Two_30in_xts) <- c('X30.inches')
+
+# 24 inches
+Control_Two_24in_xts <- xts(Control_Two_splinefilled_sorted$X24.inches, order.by = 
+                              Control_Two_splinefilled_sorted$alldays)
+class(Control_Two_24in_xts)
+plot(Control_Two_24in_xts)
+colnames(Control_Two_24in_xts) <- c('X24.inches')
+
+# 18 inches
+Control_Two_18in_xts <- xts(Control_Two_splinefilled_sorted$X18.inches, order.by = 
+                              Control_Two_splinefilled_sorted$alldays)
+class(Control_Two_18in_xts)
+plot(Control_Two_18in_xts)
+colnames(Control_Two_18in_xts) <- c('X18.inches')
+
+# 12 inches
+Control_Two_12in_xts <- xts(Control_Two_splinefilled_sorted$X12.inches, order.by = 
+                              Control_Two_splinefilled_sorted$alldays)
+class(Control_Two_12in_xts)
+plot(Control_Two_12in_xts)
+colnames(Control_Two_12in_xts) <- c('X12.inches')
+
+# 6 inches
+Control_Two_6in_xts <- xts(Control_Two_splinefilled_sorted$X6.inches, order.by = 
+                              Control_Two_splinefilled_sorted$alldays)
+class(Control_Two_6in_xts)
+plot(Control_Two_6in_xts)
+colnames(Control_Two_6in_xts) <- c('X6.inches')
+
+## Test One ##
+
+# 30 inches
+Test_One_30in_xts <- xts(Test_One_splinefilled_sorted$X30.inches, order.by = 
+                              Test_One_splinefilled_sorted$alldays)
+class(Test_One_30in_xts)
+plot(Test_One_30in_xts)
+colnames(Test_One_30in_xts) <- c('X30.inches')
+
+# 24 inches
+Test_One_24in_xts <- xts(Test_One_splinefilled_sorted$X24.inches, order.by = 
+                           Test_One_splinefilled_sorted$alldays)
+class(Test_One_24in_xts)
+plot(Test_One_24in_xts)
+colnames(Test_One_24in_xts) <- c('X24.inches')
+
+# 18 inches
+Test_One_18in_xts <- xts(Test_One_splinefilled_sorted$X18.inches, order.by = 
+                           Test_One_splinefilled_sorted$alldays)
+class(Test_One_18in_xts)
+plot(Test_One_18in_xts)
+colnames(Test_One_18in_xts) <- c('X18.inches')
+
+# 12 inches
+Test_One_12in_xts <- xts(Test_One_splinefilled_sorted$X12.inches, order.by = 
+                           Test_One_splinefilled_sorted$alldays)
+class(Test_One_12in_xts)
+plot(Test_One_12in_xts)
+colnames(Test_One_12in_xts) <- c('X12.inches')
+
+# 6 inches
+Test_One_6in_xts <- xts(Test_One_splinefilled_sorted$X6.inches, order.by = 
+                           Test_One_splinefilled_sorted$alldays)
+class(Test_One_6in_xts)
+plot(Test_One_6in_xts)
+colnames(Test_One_6in_xts) <- c('X6.inches')
+
+## Test Two ##
+
+# 30 inches
+Test_Two_30in_xts <- xts(Test_Two_splinefilled_sorted$X30.inches, order.by = 
+                           Test_Two_splinefilled_sorted$alldays)
+class(Test_Two_30in_xts)
+plot(Test_Two_30in_xts)
+colnames(Test_Two_30in_xts) <- c('X30.inches')
+
+# 24 inches
+Test_Two_24in_xts <- xts(Test_Two_splinefilled_sorted$X24.inches, order.by = 
+                           Test_Two_splinefilled_sorted$alldays)
+class(Test_Two_24in_xts)
+plot(Test_Two_24in_xts)
+colnames(Test_Two_24in_xts) <- c('X24.inches')
+
+# 18 inches
+Test_Two_18in_xts <- xts(Test_Two_splinefilled_sorted$X18.inches, order.by = 
+                           Test_Two_splinefilled_sorted$alldays)
+class(Test_Two_18in_xts)
+plot(Test_Two_18in_xts)
+colnames(Test_Two_18in_xts) <- c('X18.inches')
+
+# 12 inches
+Test_Two_12in_xts <- xts(Test_Two_splinefilled_sorted$X12.inches, order.by = 
+                           Test_Two_splinefilled_sorted$alldays)
+class(Test_Two_12in_xts)
+plot(Test_Two_12in_xts)
+colnames(Test_Two_12in_xts) <- c('X12.inches')
+
+# 6 inches
+Test_Two_6in_xts <- xts(Test_Two_splinefilled_sorted$X6.inches, order.by = 
+                          Test_Two_splinefilled_sorted$alldays)
+class(Test_Two_6in_xts)
+plot(Test_Two_6in_xts)
+colnames(Test_Two_6in_xts) <- c('X6.inches')
+
+## Daily Average Temperature from USGS ##
+Ambient_Temperature_xts <- xts(Air_splinefilled_sorted$AverageDailyTemperature, order.by = 
+                          Air_splinefilled_sorted$alldays)
+class(Ambient_Temperature_xts)
+plot(Ambient_Temperature_xts)
+colnames(Ambient_Temperature_xts) <- c('AverageDailyTeperature')
+
+
+
+
+
+
+
+
+
+
