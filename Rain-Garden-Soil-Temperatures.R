@@ -291,7 +291,7 @@ class(Test_1_Daily_rounded$X30.inches)
 #### read me ####
 
 # Now that our data has been cleaned up, we can create a time series 
-# and begin analyzing.
+# and begin analyzing for autocorrelation.
 
 ###
 
@@ -387,11 +387,11 @@ round(Test_2_Daily_splinefilled, digits = 1)
 round(Air_Daily_splinefilled, digits = 1)
 
 # make into data frames
-Control_1_splinefilled <- as.data.frame(round(Control_1_Daily_splinefilled, digits = 1))
-Control_2_splinefilled <- as.data.frame(round(Control_2_Daily_splinefilled, digits = 1))
-Test_1_splinefilled <- as.data.frame(round(Test_1_Daily_splinefilled, digits = 1))
-Test_2_splinefilled <- as.data.frame(round(Test_2_Daily_splinefilled, digits = 1))
-Air_splinefilled <- as.data.frame(round(Air_Daily_splinefilled, digits = 1))
+Control_1_rounded <- as.data.frame(round(Control_1_Daily_splinefilled, digits = 1))
+Control_2_rounded <- as.data.frame(round(Control_2_Daily_splinefilled, digits = 1))
+Test_1_rounded <- as.data.frame(round(Test_1_Daily_splinefilled, digits = 1))
+Test_2_rounded <- as.data.frame(round(Test_2_Daily_splinefilled, digits = 1))
+Air_rounded <- as.data.frame(round(Air_Daily_splinefilled, digits = 1))
 
 #### re-add date sequence as a column ####
 
@@ -401,36 +401,36 @@ seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "day", length.out = 2649)
 #create data frame from sequence
 alldays <- data.frame(alldays=seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "day", length.out = 2649))
 
-# merge alldays sequence with all data frames
-Control_1_splinefilled_merged <-merge(data.frame(Control_1_splinefilled, 
+# merge all days sequence with all data frames
+Control_1_splinefilled_merged <-merge(data.frame(Control_1_rounded, 
                                   row.names = NULL), data.frame(alldays, row.names=NULL),
                                   by = 0, all = TRUE)[-1]
 
-Control_2_splinefilled_merged <-merge(data.frame(Control_2_splinefilled, 
+Control_2_splinefilled_merged <-merge(data.frame(Control_2_rounded, 
                                   row.names = NULL), data.frame(alldays, row.names=NULL),
                                   by = 0, all = TRUE)[-1]
 
-Test_1_splinefilled_merged <-merge(data.frame(Test_1_splinefilled, 
+Test_1_splinefilled_merged <-merge(data.frame(Test_1_rounded, 
                                row.names = NULL), data.frame(alldays, row.names=NULL),
                                by = 0, all = TRUE)[-1]
 
-Test_2_splinefilled_merged <-merge(data.frame(Test_2_splinefilled, 
+Test_2_splinefilled_merged <-merge(data.frame(Test_2_rounded, 
                                row.names = NULL), data.frame(alldays, row.names=NULL),
                                by = 0, all = TRUE)[-1]
 
-Air_splinefilled_merged <-merge(data.frame(Air_splinefilled, 
+Air_splinefilled_merged <-merge(data.frame(Air_rounded, 
                           row.names = NULL), data.frame(alldays, row.names=NULL),
                           by = 0, all = TRUE)[-1]
 
 # sort chronologically 
-Control_One_splinefilled_sorted <- Control_1_splinefilled_merged[order(Control_1_splinefilled_merged$alldays),]
-Control_Two_splinefilled_sorted <- Control_2_splinefilled_merged[order(Control_2_splinefilled_merged$alldays),]
-Test_One_splinefilled_sorted <- Test_1_splinefilled_merged[order(Test_1_splinefilled_merged$alldays),]
-Test_Two_splinefilled_sorted <- Test_2_splinefilled_merged[order(Test_2_splinefilled_merged$alldays),]
-Air_splinefilled_sorted <- Air_splinefilled_merged[order(Air_splinefilled_merged$alldays),]
+Control_One_sorted <- Control_1_splinefilled_merged[order(Control_1_splinefilled_merged$alldays),]
+Control_Two_sorted <- Control_2_splinefilled_merged[order(Control_2_splinefilled_merged$alldays),]
+Test_One_sorted <- Test_1_splinefilled_merged[order(Test_1_splinefilled_merged$alldays),]
+Test_Two_sorted <- Test_2_splinefilled_merged[order(Test_2_splinefilled_merged$alldays),]
+Air_sorted <- Air_splinefilled_merged[order(Air_splinefilled_merged$alldays),]
 
 # rename column in ambient air temperature data frame 
-colnames(Air_splinefilled_sorted) <- c('AverageDailyTemperature', 'alldays')
+colnames(Air_sorted) <- c('AverageDailyTemperature', 'alldays')
 
 #### Create a time series ####
 
@@ -444,8 +444,8 @@ colnames(Air_splinefilled_sorted) <- c('AverageDailyTemperature', 'alldays')
 # summary(C2_no3_xts)
 
 # Control One
-Control_One_30in_xts <- xts(Control_One_splinefilled_sorted$X30.inches, order.by = 
-                         Control_One_splinefilled_sorted$alldays)
+Control_One_30in_xts <- xts(Control_One_sorted$X30.inches, order.by = 
+                         Control_One_sorted$alldays)
 # check class
 class(Control_One_30in_xts)
 
@@ -458,26 +458,26 @@ plot(Control_One_30in_xts)
 ## repeat for all sensor depths ##
 
 # 24 inches
-Control_One_24in_xts <- xts(Control_One_splinefilled_sorted$X24.inches, order.by = 
-                         Control_One_splinefilled_sorted$alldays)
+Control_One_24in_xts <- xts(Control_One_sorted$X24.inches, order.by = 
+                         Control_One_sorted$alldays)
 colnames(Control_One_24in_xts) <- c('X24.inches')
 plot(Control_One_24in_xts)
 
 # 18 inches
-Control_One_18in_xts <- xts(Control_One_splinefilled_sorted$X18.inches, order.by = 
-                            Control_One_splinefilled_sorted$alldays)
+Control_One_18in_xts <- xts(Control_One_sorted$X18.inches, order.by = 
+                            Control_One_sorted$alldays)
 colnames(Control_One_18in_xts) <- c('X18.inches')
 plot(Control_One_18in_xts)
 
 # 12 inches
-Control_One_12in_xts <- xts(Control_One_splinefilled_sorted$X12.inches, order.by = 
-                              Control_One_splinefilled_sorted$alldays)
+Control_One_12in_xts <- xts(Control_One_sorted$X12.inches, order.by = 
+                              Control_One_sorted$alldays)
 colnames(Control_One_12in_xts) <- c('X12.inches')
 plot(Control_One_12in_xts)
 
 # 6 inches
-Control_One_6in_xts <- xts(Control_One_splinefilled_sorted$X6.inches, order.by = 
-                              Control_One_splinefilled_sorted$alldays)
+Control_One_6in_xts <- xts(Control_One_sorted$X6.inches, order.by = 
+                              Control_One_sorted$alldays)
 colnames(Control_One_6in_xts) <- c('X6.inches')
 plot(Control_One_6in_xts)
 
@@ -600,8 +600,36 @@ class(Ambient_Temperature_xts)
 plot(Ambient_Temperature_xts)
 colnames(Ambient_Temperature_xts) <- c('AverageDailyTeperature')
 
+# check for gaps/NA's
+summary(Control_One_30in_xts)
+summary(Control_One_24in_xts)
+summary(Control_One_18in_xts)
+summary(Control_One_12in_xts)
+summary(Control_One_6in_xts)
+summary(Control_Two_30in_xts)
+summary(Control_Two_24in_xts)
+summary(Control_Two_18in_xts)
+summary(Control_Two_12in_xts)
+summary(Control_Two_6in_xts)
+summary(Test_One_30in_xts)
+summary(Test_One_24in_xts)
+summary(Test_One_18in_xts)
+summary(Test_One_12in_xts)
+summary(Test_One_6in_xts)
+summary(Test_Two_30in_xts)
+summary(Test_Two_24in_xts)
+summary(Test_Two_18in_xts)
+summary(Test_Two_12in_xts)
+summary(Test_Two_6in_xts)
+summary(Ambient_Temperature_xts)
+## SUCCESS ##
 
 
+#### Check for autocorrelation ####
+
+# examine acf and pacf for Control site #1 at 30 inches of depth
+forecast::Acf(Control_One_30in_xts, na.action = na.pass, lag.max = 10)
+forecast::Pacf(Control_One_30in_xts, na.action = na.pass, lag.max = 10)
 
 
 
