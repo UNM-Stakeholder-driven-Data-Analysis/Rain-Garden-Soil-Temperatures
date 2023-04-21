@@ -659,10 +659,111 @@ summary(Ambient_Temperature_xts)
 # examine acf and pacf for Control site #1 at 30 inches of depth
 forecast::Acf(Control_One_30in_xts, na.action = na.pass, lag.max = 10)
 forecast::Pacf(Control_One_30in_xts, na.action = na.pass, lag.max = 10)
+forecast::Acf(Control_One_6in_xts, na.action = na.pass, lag.max = 10)
+forecast::Pacf(Control_One_6in_xts, na.action = na.pass, lag.max = 10)
+forecast::Acf(Ambient_Temperature_xts, na.action = na.pass, lag.max = 10)
+forecast::Acf(Test_Two_6in_xts, na.action = na.pass, lag.max = 10)
+
+#### Classic decomposition ####
+
+# prepare data
+
+# Control One
+Control_One_30in_ts <- ts(Control_One_sorted$X30.inches,
+                          frequency = 90,
+                          start = day(min(Control_One_sorted$alldays)))
+plot(Control_One_30in_ts)
+
+Control_One_24in_ts <- ts(Control_One_sorted$X24.inches,
+                          frequency = 90,
+                          start = day(min(Control_One_sorted$alldays)))
+plot(Control_One_24in_ts)
+
+Control_One_18in_ts <- ts(Control_One_sorted$X18.inches,
+                          frequency = 90,
+                          start = day(min(Control_One_sorted$alldays)))
+plot(Control_One_18in_ts)
+
+Control_One_12in_ts <- ts(Control_One_sorted$X12.inches,
+                          frequency = 90,
+                          start = day(min(Control_One_sorted$alldays)))
+plot(Control_One_12in_ts)
+
+Control_One_6in_ts <- ts(Control_One_sorted$X6.inches,
+                          frequency = 90,
+                          start = day(min(Control_One_sorted$alldays)))
+plot(Control_One_6in_ts)
+
+# Control Two
+
+# Test One
+Test_One_30in_ts <- ts(Test_One_sorted$X30.inches,
+                         frequency = 90,
+                         start = day(min(Test_One_sorted$alldays)))
+plot(Test_One_30in_ts)
+
+Test_One_6in_ts <- ts(Test_One_sorted$X6.inches,
+                         frequency = 90,
+                         start = day(min(Test_One_sorted$alldays)))
+plot(Test_One_6in_ts)
+
+# Test Two
+
+# Air Temperature
+Air_Temp_ts <- ts(Air_sorted$AverageDailyTemperature,
+                          frequency = 90,
+                          start = day(min(Air_sorted$alldays)))
+plot(Air_Temp_ts)
 
 
+# decompose into additive components 
+plot(decompose(Control_One_30in_ts))
+plot(decompose(Control_One_6in_ts))
+plot(decompose(Test_One_30in_ts))
+plot(decompose(Test_One_6in_ts))
+plot(decompose(Air_Temp_ts))
 
 
+#### Wavelet ####
 
+library(WaveletComp)
+library(nlme)
+library(MARSS)
+library(beepr)
+library(visreg)
+install.packages("biwavelet")
+library(biwavelet)
 
+## Hypothesis: Soil temperature at the control sites are more closely correlated 
+## with ambient air temperature than at the test sites.
+## I will compare the wavelet plots of two sites: Control Site #1 and Test Site #2.
 
+#combine Control_One_sorted with Air_sorted for comparison using 6 inch depth column
+Control_One_6in_compare = as.data.frame(Control_One_sorted$alldays,
+                                        Control_One_sorted$X6.inches,
+                                        Air_sorted$AverageDailyTemperature)
+class(Control_One_sorted$alldays)
+
+Test_Two_6in_compare = as.data.frame(Test_Two_sorted$alldays,
+                                     Test_Two_sorted$X6.inches,
+                                     Air_sorted$AverageDailyTemperature)
+class(Test_Two_sorted$alldays)
+
+#run wavelet analysis
+#10 simulations for the sake of time
+WaveletOne = analyze.coherency(Control_One_6in_compare, c(2,3),
+                                           method = "AR",
+                                           params = list(AR = list(p = 1)),
+                                           dj = 1/20,
+                                           lowerPeriod = 1/4,
+                                           make.pval = T,
+                                           n.sim = 10)
+
+par(mfrow=c(1,1))
+wc.image(WaveletOne, 
+         which.image="wc", 
+         color.key="quantile", 
+         plot.ridge=FALSE, 
+         legend.params=list(lab="wavelet coherence"), 
+         main="Control Site #1 at 6 inch depth and Ambient Temperature", 
+         clear.area=F, exponent = 3, siglvl.contour = (0.05/3))
