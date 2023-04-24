@@ -1,8 +1,8 @@
 #### read me ####
 
-# The purpose of this project is to clean up the RAW data by identifying
-# where data is missing, filling in the missing data with an average of 
-# similar conditions, and get data ready for processing.
+## The purpose of this project is to clean up the RAW data by identifying
+## where data is missing, filling in the missing data with an average of 
+## similar conditions, and get data ready for processing.
 
 #### libraries ####
 library(tidyverse)
@@ -15,15 +15,7 @@ library(ape)
 library(ade4)
 library(rgdal)
 library(reshape2)
-library(simmr)
 library(ggplot2)
-
-#downloading uninstalled packages
-install.packages("psych")
-install.packages("tsibble")
-install.packages("ape")
-install.packages("ade4")
-install.packages("rgdal")
 
 #### retrieve data ####
 #importing data from stakeholder
@@ -95,10 +87,12 @@ AirTemp$date_time=as.POSIXct(AirTemp$DATE, format="%m/%d/%y %H:%M", tz="MST")
 #analyze C1
 head(C1)
 str(C1)
+## Measurement time is a chr, values are all num, date_time is POSIXct
 
 #analyze C2
 head(C2)
 str(C2)
+## Measurement time is a chr, values are all num, date_time is POSIXct
 
 #analyze T1
 head(T1)
@@ -114,23 +108,25 @@ class(T1$X6.inches)
 #analyze T2
 head(T2)
 str(T2)
+## Measurement time is a chr, values are all num, date_time is POSIXct
 
 #analyze air temperature
 head(AirTemp)
 str(AirTemp)
-## currently classified as a character, we must convert it
+## Station is num (will delete this column later), date is chr, temperature is chr, 
+## date_time is POSIXct
 
-#convert to numeric value
+#convert temperatures to numeric values
 AirTemp$HourlyDryBulbTemperature = as.numeric(AirTemp$HourlyDryBulbTemperature)
 #check
 class(AirTemp$HourlyDryBulbTemperature)
 ## SUCCESS 
 
 #remove additional hours at the end of AirTemp data
-AirTemp_reducedhours <- head(AirTemp, -13)
+AirTemp <- head(AirTemp, -13)
 
 #remove STATION column from AirTemp
-AirTemp_reducedhours2 <- AirTemp_reducedhours[,-1]
+AirTemp <- AirTemp[,-1]
 
 
 #### playing around with plots and analyzing data ####
@@ -149,8 +145,16 @@ factor(C1$X30.inches)
 ## data sets would allow for comparison to ambient air temperature with air temperature
 ## exhibiting the largest range.
 
-# converting stakeholder data to whole numbers
-## for some odd reason the code I use in a later section is not working in this section 
+factor(T1$X6.inches)
+factor(T1$X12.inches)
+factor(T1$X18.inches)
+factor(T1$X24.inches)
+factor(T1$X30.inches)
+## total temperature values identified are 289, 260, 249, 240, and 220 (respectively),
+## this makes two things clear: 1) given the excavation to create the rain garden,
+## there is a 6 inch difference in depths of a similar consistency/composition
+## so when comparing wavelets (much later) I should use the 12 inch control depth for
+## the 6 inch experiment site depth and so forth.
 
 #plots of temperature values
 plot(x = C1$date_time, y = C1$X6.inches)
@@ -195,15 +199,39 @@ T2_allhours <- data.frame(left_join(allhours.df, T2, by = c("allhours" = "date_t
 
 #### prepare AirTemp data frame for processing ####
 #use join function to combine with correct number of hours
-AirTemp_allhours <- data.frame(right_join(allhours.df, AirTemp_reducedhours2, 
+AirTemp_allhours <- data.frame(right_join(allhours.df, AirTemp, 
                                            by = c("allhours" = "date_time")))
 
 #sort chronologically
-AirTemp_sorted <- AirTemp_allhours[order(AirTemp_allhours$allhours),]
+AirTemp_allhours <- AirTemp_allhours[order(AirTemp_allhours$allhours),]
+
+#apply round_date to change hours to whole number
+round_date(AirTemp_allhours$allhours, unit = "hours", week_start = 
+             getOption("lubridate.week.start", 7))
+
+#make into data frame
+rounded.hours <- as.data.frame(round_date(AirTemp_allhours$allhours, unit = "hour", week_start = 
+                                            getOption("lubridate.week.start", 7))
+)
+
+#rename column within rounded.hours
+colnames(rounded.hours)[1] <- "Hours"
+
+#join to AirTemp data frame
+AirTemp_rightjoined <- data.frame(right_join(rounded.hours,
+                                  AirTemp_allhours,
+                                  by = c("Hours" = "allhours")))
+
+#check class of Hours column
+class(AirTemp_merged$Hours)
+
+#sort chronologically
+AirTemp_merged <- AirTemp_merged[order(AirTemp_merged$Hours),]
+
 
 ## create table for Technical Report ##
-AirTemp_sorted[1:10,]
-AirTemp_Table <- as.data.frame(AirTemp_sorted[1:10,])
+AirTemp_allhours[1:10,]
+AirTemp_Table <- as.data.frame(AirTemp_allhours[1:10,])
 
 # example code for exporting
 # write.csv(DataFrame Name, "Path to export the DataFrame\\File Name.csv", 
@@ -261,6 +289,7 @@ AirTemp_NAs <- as.data.frame(which(is.na(AirTemp_sorted), arr.ind = TRUE))
 ## AirTemp has 2872 NA's
 
 
+
 #### calculate averages for duplicate variables in data sets ####
 #example code
 #data <- data.frame("id" = c(1,1, 3,3,5,5),
@@ -274,20 +303,24 @@ AirTemp_NAs <- as.data.frame(which(is.na(AirTemp_sorted), arr.ind = TRUE))
 # data %>% group_by(id, city, time = as.Date(time)) %>% summarize(across(c(temperature, pressure), mean))
 
 #calculate averages for temperature values of duplicate readings
-Control_1_nodupes <- C1_allhours %>% group_by(allhours)  %>% 
+C1_nodupes <- C1_allhours %>% group_by(allhours)  %>% 
   summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
 
-Control_2_nodupes <- C2_allhours %>% group_by(allhours)  %>% 
+C2_nodupes <- C2_allhours %>% group_by(allhours)  %>% 
   summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
 
-Test_1_nodupes <- T1_allhours %>% group_by(allhours)  %>% 
+T1_nodupes <- T1_allhours %>% group_by(allhours)  %>% 
   summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
 
-Test_2_nodupes <- T2_allhours %>% group_by(allhours)  %>% 
+T2_nodupes <- T2_allhours %>% group_by(allhours)  %>% 
   summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
 
-AmbientAir_nodupes <- AirTemp_sorted %>% group_by(allhours) %>%
+AirTemp_nodupes <- AirTemp_allhours %>% group_by(allhours) %>%
   summarize(across(c(HourlyDryBulbTemperature), mean))
+
+#check class of new date/time column
+class(AirTemp_nodupes$allhours)
+
 
 #now check
 subset(Control_1_nodupes, duplicated(allhours))
@@ -302,10 +335,10 @@ subset(AmbientAir_nodupes, duplicated(allhours))
 
 #### identify missing values in Air Temp data ####
 
-AmbientAir_nodupes[!complete.cases(AmbientAir_nodupes),]
-view(AmbientAir_nodupes[!complete.cases(AmbientAir_nodupes),])
+AirTemp_nodupes[!complete.cases(AirTemp_nodupes),]
+view(AirTemp_nodupes[!complete.cases(AirTemp_nodupes),])
 
-AmbientAir_ready <- na.omit(AmbientAir_nodupes)
+AirTemp_ready <- na.omit(AirTemp_nodupes)
 
 
 #### create average daily values ####
@@ -314,23 +347,23 @@ AmbientAir_ready <- na.omit(AmbientAir_nodupes)
 # data %>% group_by(id, city, time = as.Date(time)) %>% 
 # summarise(across(c(temperature, pressure), mean))
 
-Control_1_Daily <- data.frame(Control_1_nodupes %>% group_by(alldays = as.Date(allhours))
+C1_Daily <- data.frame(C1_nodupes %>% group_by(alldays = as.Date(allhours))
                   %>% summarise(across(c(X30.inches, X24.inches, X18.inches,
                   X12.inches, X6.inches), mean)))
 
-Control_2_Daily <- data.frame(Control_2_nodupes %>% group_by(alldays = as.Date(allhours))
+C2_Daily <- data.frame(C2_nodupes %>% group_by(alldays = as.Date(allhours))
                     %>% summarise(across(c(X30.inches, X24.inches, X18.inches,
                     X12.inches, X6.inches), mean)))
 
-Test_1_Daily <- data.frame(Test_1_nodupes %>% group_by(alldays = as.Date(allhours))
+T1_Daily <- data.frame(T1_nodupes %>% group_by(alldays = as.Date(allhours))
                 %>% summarise(across(c(X30.inches, X24.inches, X18.inches,
                 X12.inches, X6.inches), mean)))
 
-Test_2_Daily <- data.frame(Test_2_nodupes %>% group_by(alldays = as.Date(allhours))
+T2_Daily <- data.frame(T2_nodupes %>% group_by(alldays = as.Date(allhours))
                 %>% summarise(across(c(X30.inches, X24.inches, X18.inches,
                 X12.inches, X6.inches), mean)))
 
-AmbientAir_Daily <- data.frame(AmbientAir_ready %>% group_by(alldays = as.Date(allhours))
+AirTemp_Daily <- data.frame(AirTemp_ready %>% group_by(alldays = as.Date(allhours))
                            %>% summarise(across(c(HourlyDryBulbTemperature), mean)))
 
 # remove excessive decimal places
@@ -338,20 +371,20 @@ AmbientAir_Daily <- data.frame(AmbientAir_ready %>% group_by(alldays = as.Date(a
 # example code
 # mydf %>% mutate_at(vars(-vch1), funs(round(., 1)))
 
-Control_1_Daily_rounded <- Control_1_Daily %>% mutate_at(vars(-alldays), funs(round(., 0)))
+C1_Daily <- C1_Daily %>% mutate_at(vars(-alldays), funs(round(., 0)))
 
-Control_2_Daily_rounded <- Control_2_Daily %>% mutate_at(vars(-alldays), funs(round(., 0)))
+C2_Daily <- C2_Daily %>% mutate_at(vars(-alldays), funs(round(., 0)))
 
-Test_1_Daily_rounded <- Test_1_Daily %>% mutate_at(vars(-alldays), funs(round(., 0)))
+T1_Daily <- T1_Daily %>% mutate_at(vars(-alldays), funs(round(., 0)))
 
-Test_2_Daily_rounded <- Test_2_Daily %>% mutate_at(vars(-alldays), funs(round(., 0)))
+T2_Daily <- T2_Daily %>% mutate_at(vars(-alldays), funs(round(., 0)))
 
-AmbientAir_Daily_rounded <- AmbientAir_Daily %>% mutate_at(vars(-alldays), funs(round(., 0)))
+AirTemp_Daily <- AirTemp_Daily %>% mutate_at(vars(-alldays), funs(round(., 0)))
 
-class(AmbientAir_Daily_rounded$alldays)
-class(AmbientAir_Daily_rounded$HourlyDryBulbTemperature)
-class(Test_1_Daily_rounded$alldays)
-class(Test_1_Daily_rounded$X30.inches)
+class(AirTemp_Daily$alldays)
+class(AirTemp_Daily$HourlyDryBulbTemperature)
+class(T1_Daily$alldays)
+class(T1_Daily$X30.inches)
 
 
 #### read me ####
@@ -363,14 +396,6 @@ class(Test_1_Daily_rounded$X30.inches)
 
 #### more libraries ####
 
-# install necessary libraries 
-install.packages("xts")
-install.packages("imputeTS")
-install.packages("tseries")
-install.packages("astsa")
-install.packages("WaveletComp")
-
-# open them 
 library(xts)
 library(imputeTS)
 library(tseries)
@@ -384,52 +409,52 @@ library(WaveletComp)
 ## example code
 ## ts.temp<-read.zoo(C2_no3, index.column=1, format="%Y-%m-%d %H:%M:%S", tz="America/Anchorage")
 
-Temporary_TS_C1 <- read.zoo(Control_1_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
-view(Temporary_TS_C1 <- read.zoo(Control_1_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST"))
+Temporary_TS_C1 <- read.zoo(C1_Daily, index.column=1, format="%Y-%m-%d", tz="MST")
+view(Temporary_TS_C1 <- read.zoo(C1_Daily, index.column=1, format="%Y-%m-%d", tz="MST"))
 
-Temporary_TS_C2 <- read.zoo(Control_2_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
-Temporary_TS_T1 <- read.zoo(Test_1_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
-Temporary_TS_T2 <- read.zoo(Test_2_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
+Temporary_TS_C2 <- read.zoo(C2_Daily, index.column=1, format="%Y-%m-%d", tz="MST")
+Temporary_TS_T1 <- read.zoo(T1_Daily, index.column=1, format="%Y-%m-%d", tz="MST")
+Temporary_TS_T2 <- read.zoo(T2_Daily, index.column=1, format="%Y-%m-%d", tz="MST")
 
-Temporary_TS_Air <- read.zoo(AmbientAir_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST")
-view(Temporary_TS_Air <- read.zoo(AmbientAir_Daily_rounded, index.column=1, format="%Y-%m-%d", tz="MST"))
+Temporary_TS_Air <- read.zoo(AirTemp_Daily, index.column=1, format="%Y-%m-%d", tz="MST")
+view(Temporary_TS_Air <- read.zoo(AirTemp_Daily, index.column=1, format="%Y-%m-%d", tz="MST"))
 ## hourly dry bulb column name changed to "x", will alter later
 
 #fill with spline interpolation #
 ## example code
 ## C2_no3_filled_splineinterp = na.spline(ts.temp, na.rm = T, maxgap = 24*4)
 
-Control_1_filled <- na.spline(Temporary_TS_C1, na.rm = T, maxgap = 24)
-Control_2_filled <- na.spline(Temporary_TS_C2, na.rm = T, maxgap = 24)
-Test_1_filled <- na.spline(Temporary_TS_T1, na.rm = T, maxgap = 24)
-Test_2_filled <- na.spline(Temporary_TS_T2, na.rm = T, maxgap = 24)
-Air_filled <- na.spline(Temporary_TS_Air, na.rm = T, maxgap = 24)
+C1_filled <- na.spline(Temporary_TS_C1, na.rm = T, maxgap = 24)
+C2_filled <- na.spline(Temporary_TS_C2, na.rm = T, maxgap = 24)
+T1_filled <- na.spline(Temporary_TS_T1, na.rm = T, maxgap = 24)
+T2_filled <- na.spline(Temporary_TS_T2, na.rm = T, maxgap = 24)
+AirTemp_filled <- na.spline(Temporary_TS_Air, na.rm = T, maxgap = 24)
 
 #revert back to data frame #
 
 #example code
 # C2_no3_filled_splineinterp = as.data.frame(C2_no3_filled_splineinterp)
 
-Control_1_filled <- as.data.frame(Control_1_filled)
-Control_2_filled <- as.data.frame(Control_2_filled)
-Test_1_filled <- as.data.frame(Test_1_filled)
-Test_2_filled <- as.data.frame(Test_2_filled)
-Air_filled <- as.data.frame(Air_filled)
+Control_1 <- as.data.frame(C1_filled)
+Control_2 <- as.data.frame(C2_filled)
+Test_1 <- as.data.frame(T1_filled)
+Test_2 <- as.data.frame(T2_filled)
+AirTemperature <- as.data.frame(AirTemp_filled)
 
 
 # once again, we must reduce decimal points
-round(Control_1_filled, digits = 0)
-round(Control_2_filled, digits = 0)
-round(Test_1_filled, digits = 0)
-round(Test_2_filled, digits = 0)
-round(Air_filled, digits = 0)
+round(Control_1, digits = 0)
+round(Control_2, digits = 0)
+round(Test_1, digits = 0)
+round(Test_2, digits = 0)
+round(AirTemperature, digits = 0)
 
 # make into data frames
-Control_1_ready <- as.data.frame(round(Control_1_filled, digits = 0))
-Control_2_ready <- as.data.frame(round(Control_2_filled, digits = 0))
-Test_1_ready <- as.data.frame(round(Test_1_filled, digits = 0))
-Test_2_ready <- as.data.frame(round(Test_2_filled, digits = 0))
-Air_ready <- as.data.frame(round(Air_filled, digits = 0))
+Control_1 <- as.data.frame(round(Control_1, digits = 0))
+Control_2 <- as.data.frame(round(Control_2, digits = 0))
+Test_1 <- as.data.frame(round(Test_1, digits = 0))
+Test_2 <- as.data.frame(round(Test_2, digits = 0))
+AirTemperature <- as.data.frame(round(AirTemperature, digits = 0))
 
 #### re-add date sequence as a column ####
 
@@ -440,23 +465,23 @@ seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "day", length.out = 2649)
 alldays <- data.frame(alldays=seq(ISOdatetime(2014,9,01, 00, 00, 00, 'MST'), by = "day", length.out = 2649))
 
 # merge all days sequence with all data frames
-Control_1_merged <-merge(data.frame(Control_1_ready, 
+Control_1_merged <-merge(data.frame(Control_1, 
                                   row.names = NULL), data.frame(alldays, row.names=NULL),
                                   by = 0, all = TRUE)[-1]
 
-Control_2_merged <-merge(data.frame(Control_2_ready, 
+Control_2_merged <-merge(data.frame(Control_2, 
                                   row.names = NULL), data.frame(alldays, row.names=NULL),
                                   by = 0, all = TRUE)[-1]
 
-Test_1_merged <-merge(data.frame(Test_1_ready, 
+Test_1_merged <-merge(data.frame(Test_1, 
                                row.names = NULL), data.frame(alldays, row.names=NULL),
                                by = 0, all = TRUE)[-1]
 
-Test_2_merged <-merge(data.frame(Test_2_ready, 
+Test_2_merged <-merge(data.frame(Test_2, 
                                row.names = NULL), data.frame(alldays, row.names=NULL),
                                by = 0, all = TRUE)[-1]
 
-Air_merged <-merge(data.frame(Air_ready, 
+Air_merged <-merge(data.frame(AirTemperature, 
                           row.names = NULL), data.frame(alldays, row.names=NULL),
                           by = 0, all = TRUE)[-1]
 
@@ -468,7 +493,7 @@ Test_Two_sorted <- Test_2_merged[order(Test_2_merged$alldays),]
 Air_sorted <- Air_merged[order(Air_merged$alldays),]
 
 # rename column in ambient air temperature data frame 
-colnames(Air_sorted) <- c('AverageDailyTemperature', 'alldays')
+colnames(Air_sorted) <- c('DailyTemperature', 'alldays')
 
 #### Create a time series ####
 
@@ -623,10 +648,10 @@ plot(Test_Two_6in_xts)
 
 
 ## Daily Average Temperature from USGS ##
-Ambient_Temperature_xts <- xts(Air_sorted$AverageDailyTemperature, order.by = 
+AirTemperature_xts <- xts(Air_sorted$DailyTemperature, order.by = 
                           Air_sorted$alldays)
-colnames(Ambient_Temperature_xts) <- c('AverageDailyTemperature')
-plot(Ambient_Temperature_xts)
+colnames(AirTemperature_xts) <- c('DailyTemperature')
+plot(AirTemperature_xts)
 
 
 # check for gaps/NA's
@@ -731,7 +756,6 @@ library(nlme)
 library(MARSS)
 library(beepr)
 library(visreg)
-install.packages("biwavelet")
 library(biwavelet)
 
 ## Hypothesis: Soil temperature at the control sites are more closely correlated 
@@ -741,7 +765,10 @@ library(biwavelet)
 #combine Control_One_sorted with Air_sorted for comparison using 6 inch depth column
 Control_One_6in_compare = as.data.frame(Control_One_sorted$alldays,
                                         Control_One_sorted$X6.inches,
-                                        Air_sorted$AverageDailyTemperature)
+                                        Air_sorted$DailyTemperature)
+
+Control_One_6in_compare = as.data.frame(Control_One_6in_xts, AirTemperature_xts)
+
 class(Control_One_sorted$alldays)
 
 Test_Two_6in_compare = as.data.frame(Test_Two_sorted$alldays,
