@@ -570,48 +570,139 @@ plot(decompose(Test_One_6in_ts))
 plot(decompose(Air_Temp_ts))
 
 
-#### Wavelet ####
-
-library(WaveletComp)
-library(nlme)
-library(MARSS)
-library(beepr)
-library(visreg)
-library(biwavelet)
+#### wavelet analysis ####
 
 ## Hypothesis: Soil temperature at the control sites are more closely correlated 
 ## with ambient air temperature than at the test sites.
 ## I will compare the wavelet plots of two sites: Control Site #1 and Test Site #2.
 
-#combine Control_One_sorted with Air_sorted for comparison using 6 inch depth column
-Control_One_6in_compare = as.data.frame(Control_One_sorted$alldays,
-                                        Control_One_sorted$X6.inches,
-                                        Air_sorted$DailyTemperature)
+#combine all four sites with air temperature using left join 
+Control_One <- data.frame(left_join(C1_sorted, AirTemp_sorted,  
+                                by = c("Date_Time")))
+Control_Two <- data.frame(left_join(C2_sorted, AirTemp_sorted,  
+                                    by = c("Date_Time")))
+Test_One <- data.frame(left_join(T1_sorted, AirTemp_sorted,  
+                                    by = c("Date_Time")))
+Test_Two <- data.frame(left_join(T2_sorted, AirTemp_sorted,  
+                                    by = c("Date_Time")))
 
-Control_One_6in_compare = as.data.frame(Control_One_6in_xts, AirTemperature_xts)
-
-class(Control_One_sorted$alldays)
+#check classes
+class(Control_One$Date_Time)
 
 Test_Two_6in_compare = as.data.frame(Test_Two_sorted$alldays,
                                      Test_Two_sorted$X6.inches,
                                      Air_sorted$AverageDailyTemperature)
 class(Test_Two_sorted$alldays)
 
-#run wavelet analysis
-#10 simulations for the sake of time
-WaveletOne = analyze.coherency(Control_One_6in_compare, c(2,3),
-                                           method = "AR",
-                                           params = list(AR = list(p = 1)),
-                                           dj = 1/20,
-                                           lowerPeriod = 1/4,
-                                           make.pval = T,
-                                           n.sim = 10)
+#run Wavelet analysis on all five sensor depths at two selected sites
 
+## Control Two
+
+Control_Two_30in_wavelet = analyze.coherency(Control_Two, c(1,7),
+                           method = "AR",
+                           params = list(AR = list(p = 1)),
+                           dt=1/24,
+                           dj = 1/20,
+                           lowerPeriod = 1/4,
+                           upperPeriod = 365,
+                           make.pval = T,
+                           n.sim = 100)
+
+Control_Two_24in_wavelet = analyze.coherency(Control_Two, c(2,7),
+                                             method = "AR",
+                                             params = list(AR = list(p = 1)),
+                                             dt=1/24,
+                                             dj = 1/20,
+                                             lowerPeriod = 1/4,
+                                             upperPeriod = 365,
+                                             make.pval = T,
+                                             n.sim = 100); beep("fanfare")
+
+Control_Two_18in_wavelet = analyze.coherency(Control_Two, c(3,7),
+                                             method = "AR",
+                                             params = list(AR = list(p = 1)),
+                                             dt=1/24,
+                                             dj = 1/20,
+                                             lowerPeriod = 1/4,
+                                             upperPeriod = 365,
+                                             make.pval = T,
+                                             n.sim = 100)
+
+
+Control_Two_12in_wavelet = analyze.coherency(Control_Two, c(4,7),
+                                             method = "AR",
+                                             params = list(AR = list(p = 1)),
+                                             dt=1/24,
+                                             dj = 1/20,
+                                             lowerPeriod = 1/4,
+                                             upperPeriod = 365,
+                                             make.pval = T,
+                                             n.sim = 100);  beep("fanfare")
+
+
+Control_Two_6in_wavelet = analyze.coherency(Control_Two, c(5,7),
+                                             method = "AR",
+                                             params = list(AR = list(p = 1)),
+                                             dt=1/24,
+                                             dj = 1/20,
+                                             lowerPeriod = 1/4,
+                                             upperPeriod = 365,
+                                             make.pval = T,
+                                             n.sim = 100); beep("fanfare")
+
+
+#generate wavelet plots
+
+plot(Control_Two_30in_TimeSeries)
 par(mfrow=c(1,1))
-wc.image(WaveletOne, 
+wc.image(Control_Two_30in_wavelet, 
          which.image="wc", 
          color.key="quantile", 
          plot.ridge=FALSE, 
-         legend.params=list(lab="wavelet coherence"), 
-         main="Control Site #1 at 6 inch depth and Ambient Temperature", 
+         legend.params=list(lab="Significance intensity color scale"),
+         timelab = "", periodlab = "period(days)",
+         main="Control Site #2 at 30 inch depth", 
+         clear.area=F, exponent = 3, siglvl.contour = (0.05/3)); beep("fanfare")
+
+par(mfrow=c(1,1))
+wc.image(Control_Two_24in_wavelet, 
+         which.image="wc", 
+         color.key="quantile", 
+         plot.ridge=FALSE, 
+         legend.params=list(lab="Significance intensity color scale"),
+         timelab = "", periodlab = "period(days)",
+         main="Control Site #2 at 24 inch depth", 
          clear.area=F, exponent = 3, siglvl.contour = (0.05/3))
+
+par(mfrow=c(1,1))
+wc.image(Control_Two_18in_wavelet, 
+         which.image="wc", 
+         color.key="quantile", 
+         plot.ridge=FALSE, 
+         legend.params=list(lab="Significance intensity color scale"),
+         timelab = "", periodlab = "period(days)",
+         main="Control Site #2 at 18 inch depth", 
+         clear.area=F, exponent = 3, siglvl.contour = (0.05/3))
+
+par(mfrow=c(1,1))
+wc.image(Control_Two_12in_wavelet, 
+         which.image="wc", 
+         color.key="quantile", 
+         plot.ridge=FALSE, 
+         legend.params=list(lab="Significance intensity color scale"),
+         timelab = "", periodlab = "period(days)",
+         main="Control Site #2 at 12 inch depth", 
+         clear.area=F, exponent = 3, siglvl.contour = (0.05/3))
+
+par(mfrow=c(1,1))
+wc.image(Control_Two_6in_wavelet, 
+         which.image="wc", 
+         color.key="quantile", 
+         plot.ridge=FALSE, 
+         legend.params=list(lab="Significance intensity color scale"),
+         timelab = "", periodlab = "period(days)",
+         main="Control Site #2 at 6 inch depth", 
+         clear.area=F, exponent = 3, siglvl.contour = (0.05/3)); beep("fanfare")
+
+
+
