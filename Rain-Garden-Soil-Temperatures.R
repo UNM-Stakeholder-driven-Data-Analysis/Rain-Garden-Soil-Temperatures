@@ -682,3 +682,112 @@ wc.image(Control_Two_6in_wavelet,
 
 
 
+## Test Two
+
+Test_Two_30in_wavelet = analyze.coherency(Test_Two, c(1,7),
+                                             method = "AR",
+                                             params = list(AR = list(p = 1)),
+                                             dt=1/24,
+                                             dj = 1/20,
+                                             lowerPeriod = 1/4,
+                                             upperPeriod = 365,
+                                             make.pval = T,
+                                             n.sim = 100)
+
+Test_Two_24in_wavelet = analyze.coherency(Test_Two, c(2,7),
+                                             method = "AR",
+                                             params = list(AR = list(p = 1)),
+                                             dt=1/24,
+                                             dj = 1/20,
+                                             lowerPeriod = 1/4,
+                                             upperPeriod = 365,
+                                             make.pval = T,
+                                             n.sim = 100); beep("fanfare")
+
+Test_Two_18in_wavelet = analyze.coherency(Test_Two, c(3,7),
+                                             method = "AR",
+                                             params = list(AR = list(p = 1)),
+                                             dt=1/24,
+                                             dj = 1/20,
+                                             lowerPeriod = 1/4,
+                                             upperPeriod = 365,
+                                             make.pval = T,
+                                             n.sim = 100)
+
+
+Test_Two_12in_wavelet = analyze.coherency(Test_Two, c(4,7),
+                                             method = "AR",
+                                             params = list(AR = list(p = 1)),
+                                             dt=1/24,
+                                             dj = 1/20,
+                                             lowerPeriod = 1/4,
+                                             upperPeriod = 365,
+                                             make.pval = T,
+                                             n.sim = 100);  beep("fanfare")
+
+
+Test_Two_6in_wavelet = analyze.coherency(Test_Two, c(5,7),
+                                            method = "AR",
+                                            params = list(AR = list(p = 1)),
+                                            dt=1/24,
+                                            dj = 1/20,
+                                            lowerPeriod = 1/4,
+                                            upperPeriod = 365,
+                                            make.pval = T,
+                                            n.sim = 100); beep("fanfare")
+
+
+#generate wavelet plots
+
+par(mfrow=c(1,1))
+wc.image(Test_Two_30in_wavelet, 
+         which.image="wc", 
+         color.key="quantile", 
+         plot.ridge=FALSE, 
+         legend.params=list(lab="Significance intensity color scale"),
+         timelab = "", periodlab = "period(days)",
+         main="Test Site #2 at 30 inch depth", 
+         clear.area=F, exponent = 3, siglvl.contour = (0.05/3)); beep("shotgun")
+
+par(mfrow=c(1,1))
+wc.image(Test_Two_24in_wavelet, 
+         which.image="wc", 
+         color.key="quantile", 
+         plot.ridge=FALSE, 
+         legend.params=list(lab="Significance intensity color scale"),
+         timelab = "", periodlab = "period(days)",
+         main="Test Site #2 at 24 inch depth", 
+         clear.area=F, exponent = 3, siglvl.contour = (0.05/3)); beep("wilhelm") 
+
+par(mfrow=c(1,1))
+wc.image(Test_Two_18in_wavelet, 
+         which.image="wc", 
+         color.key="quantile", 
+         plot.ridge=FALSE, 
+         legend.params=list(lab="Significance intensity color scale"),
+         timelab = "", periodlab = "period(days)",
+         main="Test Site #2 at 18 inch depth", 
+         clear.area=F, exponent = 3, siglvl.contour = (0.05/3)); beep("facebook")
+
+par(mfrow=c(1,1))
+wc.image(Test_Two_12in_wavelet, 
+         which.image="wc", 
+         color.key="quantile", 
+         plot.ridge=FALSE, 
+         legend.params=list(lab="Significance intensity color scale"),
+         timelab = "", periodlab = "period(days)",
+         main="Test Site #2 at 12 inch depth", 
+         clear.area=F, exponent = 3, siglvl.contour = (0.05/3)); beep("treasure")
+
+par(mfrow=c(1,1))
+wc.image(Test_Two_6in_wavelet, 
+         which.image="wc", 
+         color.key="quantile", 
+         plot.ridge=FALSE, 
+         legend.params=list(lab="Significance intensity color scale"),
+         timelab = "", periodlab = "period(days)",
+         main="Test Site #2 at 6 inch depth", 
+         clear.area=F, exponent = 3, siglvl.contour = (0.05/3)); beep("fanfare")
+
+
+
