@@ -341,15 +341,13 @@ library(beepr)
 #### create time series & fill with spline interpolation ####
 
 #create time series
-Temporary_TS_C1 <- read.zoo(C1_nodupes, index.column=1, format="%Y-%m-%d %H:%M:%S", tz="MST")
-view(Temporary_TS_C1 <- read.zoo(C1_Daily, index.column=1, format="%Y-%m-%d", tz="MST"))
+Temporary_TS_C1 <- read.zoo(C1_nodupes, index.column = 1, format ="%Y-%m-%d %H:%M:%S", tz="MST")
 
-Temporary_TS_C2 <- read.zoo(C2_nodupes, index.column=1, format="%Y-%m-%d", tz="MST")
-Temporary_TS_T1 <- read.zoo(T1_nodupes, index.column=1, format="%Y-%m-%d", tz="MST")
-Temporary_TS_T2 <- read.zoo(T2_nodupes, index.column=1, format="%Y-%m-%d", tz="MST")
+Temporary_TS_T2 <- read.zoo(T2_nodupes, index.column=1, format="%Y-%m-%d %H:%M:%S", tz="MST")
+view(Temporary_TS_T2 <- read.zoo(AirTemp_nodupes, index.column=1, format="%Y-%m-%d %H:%M:%S", tz="MST"))
 
 Temporary_TS_Air <- read.zoo(AirTemp_nodupes, index.column=1, format="%Y-%m-%d %H:%M:%S", tz="MST")
-view(Temporary_TS_Air <- read.zoo(AirTemp_nodupes, index.column=1, format="%Y-%m-%d", tz="MST"))
+view(Temporary_TS_Air <- read.zoo(AirTemp_nodupes, index.column=1, format="%Y-%m-%d %H:%M:%S", tz="MST"))
 # Hourly dry bulb column name changed to "x", will alter later
 
 #fill with spline interpolation 
@@ -440,39 +438,39 @@ colnames(Control_Site_Two_6in_TimeSeries) <- c('X6.inches')
 plot(Control_Site_Two_6in_TimeSeries)
 
 
-## Test Two
+## Test Site #2
 
 #30 inches
-Test_Two_30in_xts <- xts(Test_Two_sorted$X30.inches, order.by = 
-                           Test_Two_sorted$alldays)
-colnames(Test_Two_30in_xts) <- c('X30.inches')
-plot(Test_Two_30in_xts)
+Test_Two_30in_TimeSeries <- xts(T2_sorted$X30.inches, order.by = 
+                           T2_sorted$Date_Time)
+colnames(Test_Two_30in_TimeSeries) <- c('X30.inches')
+plot(Test_Two_30in_TimeSeries)
 
 
 #24 inches
-Test_Two_24in_xts <- xts(Test_Two_sorted$X24.inches, order.by = 
-                           Test_Two_sorted$alldays)
-colnames(Test_Two_24in_xts) <- c('X24.inches')
-plot(Test_Two_24in_xts)
+Test_Two_24in_TimeSeries <- xts(T2_sorted$X24.inches, order.by = 
+                           T2_sorted$Date_Time)
+colnames(Test_Two_24in_TimeSeries) <- c('X24.inches')
+plot(Test_Two_24in_TimeSeries)
 
 #18 inches
-Test_Two_18in_xts <- xts(Test_Two_sorted$X18.inches, order.by = 
-                           Test_Two_sorted$alldays)
-colnames(Test_Two_18in_xts) <- c('X18.inches')
-plot(Test_Two_18in_xts)
+Test_Two_18in_TimeSeries <- xts(T2_sorted$X18.inches, order.by = 
+                           T2_sorted$Date_Time)
+colnames(Test_Two_18in_TimeSeries) <- c('X18.inches')
+plot(Test_Two_18in_TimeSeries)
 
 #12 inches
-Test_Two_12in_xts <- xts(Test_Two_sorted$X12.inches, order.by = 
-                           Test_Two_sorted$alldays)
-colnames(Test_Two_12in_xts) <- c('X12.inches')
-plot(Test_Two_12in_xts)
+Test_Two_12in_TimeSeries <- xts(T2_sorted$X12.inches, order.by = 
+                           T2_sorted$Date_Time)
+colnames(Test_Two_12in_TimeSeries) <- c('X12.inches')
+plot(Test_Two_12in_TimeSeries)
 
 
 #6 inches
-Test_Two_6in_xts <- xts(Test_Two_sorted$X6.inches, order.by = 
-                          Test_Two_sorted$alldays)
-colnames(Test_Two_6in_xts) <- c('X6.inches')
-plot(Test_Two_6in_xts)
+Test_Two_6in_TimeSeries <- xts(T2_sorted$X6.inches, order.by = 
+                          T2_sorted$Date_Time)
+colnames(Test_Two_6in_TimeSeries) <- c('X6.inches')
+plot(Test_Two_6in_TimeSeries)
 
 
 ## Air Temperature
@@ -542,17 +540,6 @@ plot(Control_One_6in_ts)
 #Control Two
 
 
-#Test One
-Test_One_30in_ts <- ts(Test_One_sorted$X30.inches,
-                         frequency = 90,
-                         start = day(min(Test_One_sorted$alldays)))
-plot(Test_One_30in_ts)
-
-Test_One_6in_ts <- ts(Test_One_sorted$X6.inches,
-                         frequency = 90,
-                         start = day(min(Test_One_sorted$alldays)))
-plot(Test_One_6in_ts)
-
 # Test Two
 
 # Air Temperature
@@ -576,23 +563,12 @@ plot(decompose(Air_Temp_ts))
 ## with ambient air temperature than at the test sites.
 ## I will compare the wavelet plots of two sites: Control Site #1 and Test Site #2.
 
-#combine all four sites with air temperature using left join 
-Control_One <- data.frame(left_join(C1_sorted, AirTemp_sorted,  
-                                by = c("Date_Time")))
+#combine data frame of sites with air temperature using left join 
 Control_Two <- data.frame(left_join(C2_sorted, AirTemp_sorted,  
-                                    by = c("Date_Time")))
-Test_One <- data.frame(left_join(T1_sorted, AirTemp_sorted,  
                                     by = c("Date_Time")))
 Test_Two <- data.frame(left_join(T2_sorted, AirTemp_sorted,  
                                     by = c("Date_Time")))
 
-#check classes
-class(Control_One$Date_Time)
-
-Test_Two_6in_compare = as.data.frame(Test_Two_sorted$alldays,
-                                     Test_Two_sorted$X6.inches,
-                                     Air_sorted$AverageDailyTemperature)
-class(Test_Two_sorted$alldays)
 
 #run Wavelet analysis on all five sensor depths at two selected sites
 
