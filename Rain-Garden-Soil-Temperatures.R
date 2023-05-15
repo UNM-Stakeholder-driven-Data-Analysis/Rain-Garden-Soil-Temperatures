@@ -1,13 +1,11 @@
 #### read me ####
-
 # The purpose of the first half of this project is to clean up the data sets from the 
 # stakeholder and the temperature information downloaded from NOAA. Data frame structure
 # and size will be calculated and the content analyzed. Data will be corrected by
 # averaging duplicates and interpolating missing values to form a continuous
-# time series at which point it will be readu for processing.
+# time series at which point it will be ready for processing.
 
 #### libraries ####
-
 library(tidyverse)
 library(lubridate)
 library(dplyr)
@@ -18,9 +16,7 @@ library(reshape2)
 library(ggplot2)
 
 
-
 #### retrieve data ####
-
 #importing data from stakeholder
 C1 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/C1_SoilTempData.csv", header = TRUE)
 C2 = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-Garden-Soil-Temperatures/inside data/C2_SoilTempData.csv", header = TRUE)
@@ -35,9 +31,7 @@ AirTemp = read.csv("~/Documents/Data Analysis/R/Southwest Urban Hydrology/Rain-G
 # away from study site.
 
 
-
 #### examine date/time ####
-
 #view time formats
 ?strptime
 
@@ -74,9 +68,7 @@ View(AirTemp)
 # Date/time column is currently in "%m/%d/%Y %H:%M" format, need to reformat
 
 
-
 #### reformat date/time ####
-
 #view time zones
 OlsonNames()
 
@@ -88,9 +80,7 @@ T2$date_time=as.POSIXct(T2$Measurement.Time, format="%m/%d/%Y %I:%M %p", tz="MST
 AirTemp$date_time=as.POSIXct(AirTemp$DATE, format="%m/%d/%y %H:%M", tz="MST")
 
 
-
 #### explore all data set size and structure ####
-
 #analyze C1
 head(C1)
 str(C1)
@@ -107,7 +97,6 @@ str(T1)
 # X6.inches is inaccurately classed as a character instead of a number, 
 # we need to convert it to a numeric form
 T1$X6.inches = as.numeric(T1$X6.inches)
-
 #check
 class(T1$X6.inches)
 ## SUCCESS 
@@ -150,9 +139,7 @@ T1 <- tail(T1,-1)
 T2 <- tail(T2,-1)
 
 
-
 #### analyze data values ####
-
 factor(AirTemp_C$Celsius)
 # Total number of temperature values identified is 107
 
@@ -194,7 +181,6 @@ factor(T2$X30.inches)
 # 214 (respectively).
 
 
-
 #### calculate correct number of hours ####
 
 #get first and last days
@@ -215,6 +201,7 @@ difftime(startDate, endDate, units = "hours")
 # The above is incorrect as evidenced when creating data frame from sequence of
 # datetime in next section...
 
+
 #### create sequence with correct number of rows ####
 
 #create data frame from sequence 
@@ -231,10 +218,8 @@ T2_allhours <- data.frame(left_join(allhours.df, T2, by = c("allhours" = "date_t
 AirTemp_allhours <- data.frame(left_join(allhours.df, AirTemp_C, 
                                          by = c("allhours" = "date_time_rounded")))
 
-          
 
 #### identify identical/missing values in data sets ####
-
 #C1
 subset(C1_allhours, duplicated(allhours))
 # Data frame contains 7 duplicates
@@ -284,9 +269,7 @@ AirTemp_NAs <- as.data.frame(which(is.na(AirTemp_allhours), arr.ind = TRUE))
 # time.
 
 
-
 #### calculate averages for duplicate variables in data sets ####
-
 #calculate averages for temperature values of duplicate readings
 C1_nodupes <- C1_allhours %>% group_by(allhours)  %>% 
   summarize(across(c(X30.inches, X24.inches, X18.inches, X12.inches, X6.inches), mean))
@@ -308,15 +291,10 @@ class(AirTemp_nodupes$allhours)
 
 #now check
 subset(C1_nodupes, duplicated(allhours))
-
 subset(C2_nodupes, duplicated(allhours))
-
 subset(T1_nodupes, duplicated(allhours))
-
 subset(T2_nodupes, duplicated(allhours))
-
 subset(AirTemp_nodupes, duplicated(allhours))
-
 
 
 #### read me ####
@@ -324,7 +302,6 @@ subset(AirTemp_nodupes, duplicated(allhours))
 # Now that our data has been cleaned up, it is ready for more processing. We 
 # can create a time series to fill gaps using interpolation and begin analyzing
 # the time structure more in preparation for the generation of wavelets.
-
 
 
 #### more libraries ####
@@ -337,45 +314,31 @@ library(WaveletComp)
 library(beepr)
 
 
-
 #### create time series & fill with spline interpolation ####
-
 #create time series
-Temporary_TS_C1 <- read.zoo(C1_nodupes, index.column = 1, format ="%Y-%m-%d %H:%M:%S", tz="MST")
+Temporary_TS_C2 <- read.zoo(C2_nodupes, index.column = 1, format ="%Y-%m-%d %H:%M:%S", tz="MST")
 
 Temporary_TS_T2 <- read.zoo(T2_nodupes, index.column=1, format="%Y-%m-%d %H:%M:%S", tz="MST")
-view(Temporary_TS_T2 <- read.zoo(AirTemp_nodupes, index.column=1, format="%Y-%m-%d %H:%M:%S", tz="MST"))
+view(Temporary_TS_T2 <- read.zoo(T2_nodupes, index.column=1, format="%Y-%m-%d %H:%M:%S", tz="MST"))
 
 Temporary_TS_Air <- read.zoo(AirTemp_nodupes, index.column=1, format="%Y-%m-%d %H:%M:%S", tz="MST")
 view(Temporary_TS_Air <- read.zoo(AirTemp_nodupes, index.column=1, format="%Y-%m-%d %H:%M:%S", tz="MST"))
 # Hourly dry bulb column name changed to "x", will alter later
 
 #fill with spline interpolation 
-C1_filled <- na.spline(Temporary_TS_C1, na.rm = T, maxgap = 24*1)
 C2_filled <- na.spline(Temporary_TS_C2, na.rm = T, maxgap = 24*1)
-T1_filled <- na.spline(Temporary_TS_T1, na.rm = T, maxgap = 24*1)
 T2_filled <- na.spline(Temporary_TS_T2, na.rm = T, maxgap = 24*1)
 AirTemp_filled <- na.spline(Temporary_TS_Air, na.rm = T, maxgap = 24*2)
 
 #revert back to data frame 
-C1_spline <- as.data.frame(C1_filled)
 C2_spline <- as.data.frame(C2_filled)
-T1_spline <- as.data.frame(T1_filled)
 T2_spline <- as.data.frame(T2_filled)
 AirTemp_spline <- as.data.frame(AirTemp_filled)
 
 #re-add date sequence as a column by merging with allhours data frame
-C1_merged <-merge(data.frame(C1_spline, 
-                                  row.names = NULL), data.frame(allhours.df, row.names=NULL),
-                                  by = 0, all = TRUE)[-1]
-
 C2_merged <-merge(data.frame(C2_spline, 
                                   row.names = NULL), data.frame(allhours.df, row.names=NULL),
                                   by = 0, all = TRUE)[-1]
-
-T1_merged <-merge(data.frame(T1_spline, 
-                               row.names = NULL), data.frame(allhours.df, row.names=NULL),
-                               by = 0, all = TRUE)[-1]
 
 T2_merged <-merge(data.frame(T2_spline, 
                                row.names = NULL), data.frame(allhours.df, row.names=NULL),
@@ -386,22 +349,17 @@ AirTemp_merged <-merge(data.frame(AirTemp_spline,
                           by = 0, all = TRUE)[-1]
 
 #sort chronologically 
-C1_sorted <- C1_merged[order(C1_merged$allhours),]
 C2_sorted <- C2_merged[order(C2_merged$allhours),]
-T1_sorted <- T1_merged[order(T1_merged$allhours),]
 T2_sorted <- T2_merged[order(T2_merged$allhours),]
 AirTemp_sorted <- AirTemp_merged[order(AirTemp_merged$allhours),]
 
 #rename columns in all data frames
-colnames(C1_sorted) <- c('X30.inches', 'X24.inches', 'X18.inches', 'X12.inches',
-                           'X6.inches', 'Date_Time')
 colnames(C2_sorted) <- c('X30.inches', 'X24.inches', 'X18.inches', 'X12.inches',
                            'X6.inches', 'Date_Time')
-colnames(T1_sorted) <- c('X30.inches', 'X24.inches', 'X18.inches', 'X12.inches',
-                        'X6.inches', 'Date_Time')
 colnames(T2_sorted) <- c('X30.inches', 'X24.inches', 'X18.inches', 'X12.inches',
                         'X6.inches', 'Date_Time')
 colnames(AirTemp_sorted) <- c('Temperature', 'Date_Time')
+
 
 #### create time series objects  ####
 
@@ -437,7 +395,6 @@ Control_Site_Two_6in_TimeSeries <- xts(C2_sorted$X6.inches, order.by =
 colnames(Control_Site_Two_6in_TimeSeries) <- c('X6.inches')
 plot(Control_Site_Two_6in_TimeSeries)
 
-
 ## Test Site #2
 
 #30 inches
@@ -445,7 +402,6 @@ Test_Two_30in_TimeSeries <- xts(T2_sorted$X30.inches, order.by =
                            T2_sorted$Date_Time)
 colnames(Test_Two_30in_TimeSeries) <- c('X30.inches')
 plot(Test_Two_30in_TimeSeries)
-
 
 #24 inches
 Test_Two_24in_TimeSeries <- xts(T2_sorted$X24.inches, order.by = 
@@ -465,103 +421,51 @@ Test_Two_12in_TimeSeries <- xts(T2_sorted$X12.inches, order.by =
 colnames(Test_Two_12in_TimeSeries) <- c('X12.inches')
 plot(Test_Two_12in_TimeSeries)
 
-
 #6 inches
 Test_Two_6in_TimeSeries <- xts(T2_sorted$X6.inches, order.by = 
                           T2_sorted$Date_Time)
 colnames(Test_Two_6in_TimeSeries) <- c('X6.inches')
 plot(Test_Two_6in_TimeSeries)
 
-
 ## Air Temperature
 
-AirTemperature_xts <- xts(Air_sorted$Temperature, order.by = 
-                          Air_sorted$allhours)
-colnames(AirTemperature_xts) <- c('Temperature')
-plot(AirTemperature_xts)
-
+AirTemperature_TimeSeries <- xts(AirTemp_sorted$Temperature, order.by = 
+                          AirTemp_sorted$Date_Time)
+colnames(AirTemperature_TimeSeries) <- c('Temperature')
+plot(AirTemperature_TimeSeries)
 
 # check for gaps/NA's
-summary(Control_Two_30in_xts)
-summary(Control_Two_24in_xts)
-summary(Control_Two_18in_xts)
-summary(Control_Two_12in_xts)
-summary(Control_Two_6in_xts)
-summary(Test_Two_30in_xts)
-summary(Test_Two_24in_xts)
-summary(Test_Two_18in_xts)
-summary(Test_Two_12in_xts)
-summary(Test_Two_6in_xts)
-summary(AirTemperature_xts)
+summary(Control_Two_30in_TimeSeries)
+summary(Control_Two_24in_TimeSeries)
+summary(Control_Two_18in_TimeSeries)
+summary(Control_Two_12in_TimeSeries)
+summary(Control_Two_6in_TimeSeries)
+summary(Test_Two_30in_TimeSeries)
+summary(Test_Two_24in_TimeSeries)
+summary(Test_Two_18in_TimeSeries)
+summary(Test_Two_12in_TimeSeries)
+summary(Test_Two_6in_TimeSeries)
+summary(AirTemperature_TimeSeries)
 ## SUCCESS 
 
 
 #### check for autocorrelation ####
-
 #examine both auto and partial correlation
-forecast::Acf(Control_One_30in_xts, na.action = na.pass, lag.max = 10)
-forecast::Pacf(Control_One_30in_xts, na.action = na.pass, lag.max = 10)
-forecast::Acf(Control_One_6in_xts, na.action = na.pass, lag.max = 10)
-forecast::Pacf(Control_One_6in_xts, na.action = na.pass, lag.max = 10)
-forecast::Acf(Ambient_Temperature_xts, na.action = na.pass, lag.max = 10)
-forecast::Acf(Test_Two_6in_xts, na.action = na.pass, lag.max = 10)
-
-
-#### classic decomposition ####
-
-#prepare data
-
-#Control One
-Control_One_30in_ts <- ts(Control_One_sorted$X30.inches,
-                          frequency = 90,
-                          start = day(min(Control_One_sorted$alldays)))
-plot(Control_One_30in_ts)
-
-Control_One_24in_ts <- ts(Control_One_sorted$X24.inches,
-                          frequency = 90,
-                          start = day(min(Control_One_sorted$alldays)))
-plot(Control_One_24in_ts)
-
-Control_One_18in_ts <- ts(Control_One_sorted$X18.inches,
-                          frequency = 90,
-                          start = day(min(Control_One_sorted$alldays)))
-plot(Control_One_18in_ts)
-
-Control_One_12in_ts <- ts(Control_One_sorted$X12.inches,
-                          frequency = 90,
-                          start = day(min(Control_One_sorted$alldays)))
-plot(Control_One_12in_ts)
-
-Control_One_6in_ts <- ts(Control_One_sorted$X6.inches,
-                          frequency = 90,
-                          start = day(min(Control_One_sorted$alldays)))
-plot(Control_One_6in_ts)
-
-#Control Two
-
-
-# Test Two
-
-# Air Temperature
-Air_Temp_ts <- ts(Air_sorted$AverageDailyTemperature,
-                          frequency = 90,
-                          start = day(min(Air_sorted$alldays)))
-plot(Air_Temp_ts)
-
-
-# decompose into additive components 
-plot(decompose(Control_One_30in_ts))
-plot(decompose(Control_One_6in_ts))
-plot(decompose(Test_One_30in_ts))
-plot(decompose(Test_One_6in_ts))
-plot(decompose(Air_Temp_ts))
+forecast::Acf(Control_Two_30in_TimeSeries, na.action = na.pass, lag.max = 10)
+forecast::Pacf(Control_Two_30in_TimeSeries, na.action = na.pass, lag.max = 10)
+forecast::Acf(Control_Two_6in_TimeSeries, na.action = na.pass, lag.max = 10)
+forecast::Pacf(Control_Two_6in_TimeSeries, na.action = na.pass, lag.max = 10)
+forecast::Acf(Test_Two_30in_TimeSeries, na.action = na.pass, lag.max = 10)
+forecast::Pacf(Test_Two_30in_TimeSeries, na.action = na.pass, lag.max = 10)
+forecast::Acf(AirTemperature_TimeSeries, na.action = na.pass, lag.max = 10)
+forecast::Pacf(AirTemperature_TimeSeries, na.action = na.pass, lag.max = 10)
 
 
 #### wavelet analysis ####
 
-## Hypothesis: Soil temperature at the control sites are more closely correlated 
-## with ambient air temperature than at the test sites.
-## I will compare the wavelet plots of two sites: Control Site #1 and Test Site #2.
+# Hypothesis: Soil temperature at the control sites are more closely correlated 
+# with ambient air temperature than at the test sites.
+# I will compare the wavelet plots of two sites: Control Site #1 and Test Site #2.
 
 #combine data frame of sites with air temperature using left join 
 Control_Two <- data.frame(left_join(C2_sorted, AirTemp_sorted,  
@@ -573,7 +477,6 @@ Test_Two <- data.frame(left_join(T2_sorted, AirTemp_sorted,
 #run Wavelet analysis on all five sensor depths at two selected sites
 
 ## Control Two
-
 Control_Two_30in_wavelet = analyze.coherency(Control_Two, c(1,7),
                            method = "AR",
                            params = list(AR = list(p = 1)),
@@ -628,7 +531,6 @@ Control_Two_6in_wavelet = analyze.coherency(Control_Two, c(5,7),
 
 
 #generate wavelet plots
-
 plot(Control_Two_30in_TimeSeries)
 par(mfrow=c(1,1))
 wc.image(Control_Two_30in_wavelet, 
@@ -683,7 +585,6 @@ wc.image(Control_Two_6in_wavelet,
 
 
 ## Test Two
-
 Test_Two_30in_wavelet = analyze.coherency(Test_Two, c(1,7),
                                              method = "AR",
                                              params = list(AR = list(p = 1)),
@@ -738,7 +639,6 @@ Test_Two_6in_wavelet = analyze.coherency(Test_Two, c(5,7),
 
 
 #generate wavelet plots
-
 par(mfrow=c(1,1))
 wc.image(Test_Two_30in_wavelet, 
          which.image="wc", 
